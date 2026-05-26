@@ -116,5 +116,23 @@ namespace hachaturyanov
       throw std::runtime_error("Failed to add key-value pair, rehashing recommended");
     }
   }
+
+  template< class Key, class Value, class Hash, class Equal >
+  Value HashTable< Key, Value, Hash, Equal >::drop(const Key &key)
+  {
+    for (size_t i = 0; i < capacity_; i++) {
+      size_t id = (hash_(key) + i * i) % capacity_;
+      Slot< Key, Value > &slot = data_[id];
+      if (slot.state == EMPTY) {
+        break;
+      } else if (equal_(slot.key, key)) {
+        Value value = slot.value;
+        slot.state = TOMBSTONE;
+        size_--;
+        return value;
+      }
+    }
+    throw std::runtime_error("Key not found");
+  }
 }
 #endif
