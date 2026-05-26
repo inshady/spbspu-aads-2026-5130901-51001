@@ -140,7 +140,7 @@ namespace hachaturyanov
   {
     for (size_t i = 0; i < capacity_; i++) {
       size_t id = (hash_(key) + i * i) % capacity_;
-      Slot< Key, Value > &slot = data_[id];
+      const Slot< Key, Value > &slot = data_[id];
       if (slot.state == EMPTY) {
         break;
       } else if (slot.state == OCCUPIED && equal_(slot.key, key)) {
@@ -149,5 +149,29 @@ namespace hachaturyanov
     }
     return false;
   }
+
+  template< class Key, class Value, class Hash, class Equal >
+  void HashTable< Key, Value, Hash, Equal >::rehash(size_t slots)
+  {
+    size_t new_capacity = nextPrime(slots);
+    Slot< Key, Value >* new_data = new Slot< Key, Value >[new_capacity];
+
+    for (size_t i = 0; i < capacity_; i++) {
+      if (data_[i].state == OCCUPIED) {
+        for (size_t j = 0; j < new_capacity; j++) {
+          size_t id = (hash_(data_[i].key) + j * j) % new_capacity;
+          if (new_data[id].state == EMPTY) {
+            new_data[id] = data_[i];
+            break;
+          }
+        }
+      }
+    }
+
+    std::swap(data_, new_data);
+    std::swap(capacity_, new_capacity);
+    delete[] new_data;
+  }
+
 }
 #endif
