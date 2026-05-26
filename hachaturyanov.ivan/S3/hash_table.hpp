@@ -106,7 +106,7 @@ namespace hachaturyanov
       } else if (slot.state == TOMBSTONE && !tombstone_found) {
         tombstone_found = true;
         tombstone_id = id;
-      } else if (equal_(slot.key, key)) {
+      } else if (slot.state == OCCUPIED && equal_(slot.key, key)) {
         slot.value = value;
         break;
       }
@@ -125,7 +125,7 @@ namespace hachaturyanov
       Slot< Key, Value > &slot = data_[id];
       if (slot.state == EMPTY) {
         break;
-      } else if (equal_(slot.key, key)) {
+      } else if (slot.state == OCCUPIED && equal_(slot.key, key)) {
         Value value = slot.value;
         slot.state = TOMBSTONE;
         size_--;
@@ -133,6 +133,21 @@ namespace hachaturyanov
       }
     }
     throw std::runtime_error("Key not found");
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  bool HashTable< Key, Value, Hash, Equal >::has(const Key &key) const
+  {
+    for (size_t i = 0; i < capacity_; i++) {
+      size_t id = (hash_(key) + i * i) % capacity_;
+      Slot< Key, Value > &slot = data_[id];
+      if (slot.state == EMPTY) {
+        break;
+      } else if (slot.state == OCCUPIED && equal_(slot.key, key)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 #endif
