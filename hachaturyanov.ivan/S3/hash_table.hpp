@@ -68,6 +68,9 @@ namespace hachaturyanov
     bool empty() const;
     void clear();
 
+    HashTable(const HashTable &other);
+    HashTable(const HashTable &&other);
+    HashTable &operator=(const HashTable &other);
    private:
     Slot< Key, Value >* data_;
     size_t size_;
@@ -76,6 +79,43 @@ namespace hachaturyanov
     Equal equal_;
     void swap(HashTable &other);
   };
+
+  template< class Key, class Value, class Hash, class Equal >
+  HashTable< Key, Value, Hash, Equal >
+  &HashTable< Key, Value, Hash, Equal >::operator=(const HashTable &other)
+  {
+    if (this != &other) {
+      HashTable< Key, Value, Hash, Equal > temp(other);
+      swap(temp);
+    }
+    return *this;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  HashTable< Key, Value, Hash, Equal >::HashTable(const HashTable &&other):
+   data_(other.data_),
+   size_(other.size_),
+   capacity_(other.capacity_),
+   hash_(other.hash_),
+   equal_(other.equal_)
+  {
+    other.data_ = nullptr;
+    other.size_ = 0;
+    other.capacity_ = 0;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  HashTable< Key, Value, Hash, Equal >::HashTable(const HashTable &other):
+   data_(new Slot< Key, Value >[other.capacity_]),
+   size_(other.size_),
+   capacity_(other.capacity_),
+   hash_(other.hash_),
+   equal_(other.equal_)
+  {
+    for (size_t i = 0; i < capacity_; i++) {
+      data_[i] = other.data_[i];
+    }
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   size_t HashTable< Key, Value, Hash, Equal >::size() const
