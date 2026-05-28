@@ -1,7 +1,6 @@
 #ifndef HASH_TABLE_HPP
 #define HASH_TABLE_HPP
 
-#include "../common/list.hpp"
 
 namespace hachaturyanov
 {
@@ -57,32 +56,83 @@ namespace hachaturyanov
    public:
     HashTable();
     HashTable(size_t slots);
+    ~HashTable();
 
     void add(const Key &key, const Value &value);
     Value drop(const Key &key);
     bool has(const Key &key) const;
     void rehash(size_t slots);
+
+    size_t size() const;
+    size_t capacity() const;
+    bool empty() const;
+    void clear();
+
    private:
     Slot< Key, Value >* data_;
     size_t size_;
     size_t capacity_;
     Hash hash_;
     Equal equal_;
+    void swap(HashTable &other);
   };
 
   template< class Key, class Value, class Hash, class Equal >
+  size_t HashTable< Key, Value, Hash, Equal >::size() const
+  {
+    return size_;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  size_t HashTable< Key, Value, Hash, Equal >::capacity() const
+  {
+    return capacity_;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  bool HashTable< Key, Value, Hash, Equal >::empty() const
+  {
+    return size_ == 0;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  void HashTable< Key, Value, Hash, Equal >::clear()
+  {
+    for (size_t i = 0; i < capacity_; i++) {
+      data_[i].state = EMPTY;
+    }
+    size_ = 0;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  void HashTable< Key, Value, Hash, Equal >::swap(HashTable &other)
+  {
+    std::swap(data_, other.data_);
+    std::swap(size_, other.size_);
+    std::swap(capacity_, other.capacity_);
+    std::swap(hash_, other.hash_);
+    std::swap(equal_, other.equal_);
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
   HashTable< Key, Value, Hash, Equal >::HashTable():
-   data_(new Slot< Key, Value >[DEFAULT_CAPACITY]),
+   data_(new Slot< Key, Value >[nextPrime(DEFAULT_CAPACITY)]),
    size_(0),
-   capacity_(DEFAULT_CAPACITY)
+   capacity_(nextPrime(DEFAULT_CAPACITY))
   {}
 
   template< class Key, class Value, class Hash, class Equal >
   HashTable< Key, Value, Hash, Equal >::HashTable(size_t slots):
-   data_(new Slot< Key, Value >[slots]),
+   data_(new Slot< Key, Value >[nextPrime(slots)]),
    size_(0),
    capacity_(nextPrime(slots))
   {}
+
+  template< class Key, class Value, class Hash, class Equal >
+  HashTable< Key, Value, Hash, Equal >::~HashTable()
+  {
+    delete[] data_;
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   void HashTable< Key, Value, Hash, Equal >::add(const Key &key, const Value &value)
@@ -94,12 +144,10 @@ namespace hachaturyanov
       size_t id = (hash_(key) + i * i) % capacity_;
       Slot< Key, Value > &slot = data_[id];
       if (slot.state == EMPTY) {
-        if (tombstone_found) {
-          slot = data_[tombstone_id];
-        }
-        slot.key = key;
-        slot.value = value;
-        slot.state = OCCUPIED;
+        size_t target = tombstone_found ? tombstone_id : id;
+        data_[target].key = key;
+        data_[target].value = value;
+        data_[target].state = OCCUPIED;
         size_++;
         added = true;
         break;
