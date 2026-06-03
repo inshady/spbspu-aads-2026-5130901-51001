@@ -1,6 +1,9 @@
 #ifndef HASH_TABLE_HPP
 #define HASH_TABLE_HPP
 
+#include <stdexcept>
+#include <utility>
+
 
 namespace hachaturyanov
 {
@@ -67,9 +70,12 @@ namespace hachaturyanov
     size_t capacity() const;
     bool empty() const;
     void clear();
+    Value & get(const Key &key) const;
+
+    Value & operator[](const Key &key);
 
     HashTable(const HashTable &other);
-    HashTable(const HashTable &&other);
+    HashTable(HashTable &&other) noexcept;
     HashTable &operator=(const HashTable &other);
    private:
     Slot< Key, Value >* data_;
@@ -77,8 +83,58 @@ namespace hachaturyanov
     size_t capacity_;
     Hash hash_;
     Equal equal_;
+
     void swap(HashTable &other);
+    size_t findIndex(const Key &key) const;
   };
+
+  template< class Key, class Value, class Hash, class Equal >
+  Value & HashTable< Key, Value, Hash, Equal >::get(const Key &key) const
+  {
+    size_t id = findIndex(key);
+    if (id == capacity_ || data_[id].state != OCCUPIED) {
+      throw std::runtime_error("Key not found");
+    }
+    return data_[id].value;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  Value & HashTable< Key, Value, Hash, Equal >::operator[](const Key &key)
+  {
+    size_t id = findIndex(key);
+    if (id == capacity_) {
+      throw std::runtime_error("Failed to add key-value pair, rehashing recommended");
+    }
+    if (data_[id].state != OCCUPIED) {
+      data_[id].key = key;
+      data_[id].value = Value{};
+      data_[id].state = OCCUPIED;
+      size_++;
+    }
+    return data_[id].value;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  size_t HashTable< Key, Value, Hash, Equal >::findIndex(const Key &key) const
+  {
+    size_t tombstone_id = capacity_;
+    for (size_t i = 0; i < capacity_; i++) {
+      size_t id = (hash_(key) + i * i) % capacity_;
+      const Slot< Key, Value > &slot = data_[id];
+      if (slot.state == OCCUPIED && equal_(slot.key, key)) {
+        return id;
+      } else if (slot.state == TOMBSTONE && tombstone_id == capacity_) {
+        tombstone_id = id;
+      } else if (slot.state == EMPTY) {
+        if (tombstone_id != capacity_) {
+          return tombstone_id;
+        } else {
+          return id;
+        }
+      }
+    }
+    return capacity_;
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   HashTable< Key, Value, Hash, Equal >
@@ -92,7 +148,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  HashTable< Key, Value, Hash, Equal >::HashTable(const HashTable &&other):
+  HashTable< Key, Value, Hash, Equal >::HashTable(HashTable &&other) noexcept:
    data_(other.data_),
    size_(other.size_),
    capacity_(other.capacity_),
@@ -177,65 +233,36 @@ namespace hachaturyanov
   template< class Key, class Value, class Hash, class Equal >
   void HashTable< Key, Value, Hash, Equal >::add(const Key &key, const Value &value)
   {
-    bool added = false;
-    bool tombstone_found = false;
-    size_t tombstone_id = 0;
-    for (size_t i = 0; i < capacity_; i++) {
-      size_t id = (hash_(key) + i * i) % capacity_;
-      Slot< Key, Value > &slot = data_[id];
-      if (slot.state == EMPTY) {
-        size_t target = tombstone_found ? tombstone_id : id;
-        data_[target].key = key;
-        data_[target].value = value;
-        data_[target].state = OCCUPIED;
-        size_++;
-        added = true;
-        break;
-      } else if (slot.state == TOMBSTONE && !tombstone_found) {
-        tombstone_found = true;
-        tombstone_id = id;
-      } else if (slot.state == OCCUPIED && equal_(slot.key, key)) {
-        slot.value = value;
-        break;
-      }
-    }
-
-    if (!added) {
+    size_t id = findIndex(key);
+    if (id == capacity_) {
       throw std::runtime_error("Failed to add key-value pair, rehashing recommended");
     }
+    if (data_[id].state != OCCUPIED) {
+      data_[id].key = key;
+      data_[id].state = OCCUPIED;
+      size_++;
+    }
+    data_[id].value = value;
   }
 
   template< class Key, class Value, class Hash, class Equal >
   Value HashTable< Key, Value, Hash, Equal >::drop(const Key &key)
   {
-    for (size_t i = 0; i < capacity_; i++) {
-      size_t id = (hash_(key) + i * i) % capacity_;
-      Slot< Key, Value > &slot = data_[id];
-      if (slot.state == EMPTY) {
-        break;
-      } else if (slot.state == OCCUPIED && equal_(slot.key, key)) {
-        Value value = slot.value;
-        slot.state = TOMBSTONE;
-        size_--;
-        return value;
-      }
+    size_t id = findIndex(key);
+    if (id == capacity_ || data_[id].state != OCCUPIED) {
+      throw std::runtime_error("Key not found");
     }
-    throw std::runtime_error("Key not found");
+    Value value = data_[id].value;
+    data_[id].state = TOMBSTONE;
+    size_--;
+    return value;
   }
 
   template< class Key, class Value, class Hash, class Equal >
   bool HashTable< Key, Value, Hash, Equal >::has(const Key &key) const
   {
-    for (size_t i = 0; i < capacity_; i++) {
-      size_t id = (hash_(key) + i * i) % capacity_;
-      const Slot< Key, Value > &slot = data_[id];
-      if (slot.state == EMPTY) {
-        break;
-      } else if (slot.state == OCCUPIED && equal_(slot.key, key)) {
-        return true;
-      }
-    }
-    return false;
+    size_t id = findIndex(key);
+    return id != capacity_ && data_[id].state == OCCUPIED;
   }
 
   template< class Key, class Value, class Hash, class Equal >
