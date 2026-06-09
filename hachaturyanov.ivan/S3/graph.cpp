@@ -157,7 +157,9 @@ namespace hachaturyanov
       throw std::runtime_error("Link not found");
     }
     temp.links_.get(verticesPair)->erase(temp.links_.get(verticesPair)->find(weight));
-    links_count_--;
+    temp.links_count_--;
+
+    swap(temp);
   }
 
   Graph::Graph(size_t vertices_count, List< std::string >* vertices):
@@ -188,7 +190,6 @@ namespace hachaturyanov
           do {
             size_t weight = *weightsIt;
             bind(vertex1, vertex2, weight);
-            links_count_++;
             ++weightsIt;
           } while (weightsIt != weights->begin());
           ++linksIt;
