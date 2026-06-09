@@ -30,6 +30,7 @@ namespace hachaturyanov
     Graph &operator=(Graph &&other) noexcept;
 
     Graph(size_t links_count, new_links_list* links_list);
+    Graph(size_t vertices_count, List< std::string >* vertices);
 
     const List< std::string >* getVertices() const noexcept;
     oneway_links_list* getLinks(const std::string &vertex, bool outbound) const;

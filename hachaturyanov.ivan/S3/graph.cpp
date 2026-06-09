@@ -159,4 +159,11 @@ namespace hachaturyanov
     temp.links_.get(verticesPair)->erase(temp.links_.get(verticesPair)->find(weight));
     links_count_--;
   }
+
+  Graph::Graph(size_t vertices_count, List< std::string >* vertices):
+   links_(),
+   vertices_(new List< std::string >(*vertices)),
+   links_count_(0),
+   vertices_count_(vertices_count)
+  {}
 }
