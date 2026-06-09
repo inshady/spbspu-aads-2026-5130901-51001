@@ -145,4 +145,18 @@ namespace hachaturyanov
 
     swap(temp);
   }
+
+  void Graph::cut(const std::string &vertex1, const std::string &vertex2, size_t weight)
+  {
+    Graph temp(*this);
+    vertices_pair verticesPair = {vertex1, vertex2};
+    if (!temp.vertices_->has(vertex1) || !temp.vertices_->has(vertex2)) {
+      throw std::runtime_error("Vertex not found");
+    }
+    if (!temp.links_.get(verticesPair)->has(weight)) {
+      throw std::runtime_error("Link not found");
+    }
+    temp.links_.get(verticesPair)->erase(temp.links_.get(verticesPair)->find(weight));
+    links_count_--;
+  }
 }

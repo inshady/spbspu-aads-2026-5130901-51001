@@ -34,6 +34,7 @@ namespace hachaturyanov
     const List< std::string >* getVertices() const noexcept;
     oneway_links_list* getLinks(const std::string &vertex, bool outbound) const;
     void bind(const std::string &vertex1, const std::string &vertex2, size_t weight);
+    void cut(const std::string &vertex1, const std::string &vertex2, size_t weight);
   };
 
 }
