@@ -166,4 +166,36 @@ namespace hachaturyanov
    links_count_(0),
    vertices_count_(vertices_count)
   {}
+
+  Graph::Graph(const Graph &graph1, const Graph &graph2):
+   Graph(graph1)
+  {
+    if (!graph2.vertices_->isEmpty()) {
+      auto start = graph2.vertices_->begin();
+      auto it = start;
+      do {
+        std::string vertex1 = *it;
+        if (!vertices_->has(vertex1)) {
+          insertSorted< std::string >(vertices_, vertex1);
+          vertices_count_++;
+        }
+        oneway_links_list* links = graph2.getLinks(vertex1, true);
+        auto linksIt = links->begin();
+        do {
+          std::string vertex2 = linksIt->first;
+          List< size_t >* weights = linksIt->second;
+          auto weightsIt = weights->begin();
+          do {
+            size_t weight = *weightsIt;
+            bind(vertex1, vertex2, weight);
+            links_count_++;
+            ++weightsIt;
+          } while (weightsIt != weights->begin());
+          ++linksIt;
+        } while (linksIt != links->begin());
+        ++it;
+        links->clear();
+      } while (it != start);
+    }
+  }
 }
