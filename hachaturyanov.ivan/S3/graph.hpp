@@ -7,9 +7,15 @@
 
 namespace hachaturyanov
 {
-  using graph_key = std::pair< std::string, std::string >;
+  using vertices_pair = std::pair< std::string, std::string >;
+  using new_links_list = List< std::pair< vertices_pair, size_t > >;
+  using oneway_links_list = List< std::pair< std::string, List< size_t >* > >;
+
+  using graph_table = HashTable< vertices_pair, List< size_t >*,
+        xxhash< vertices_pair >, std::equal_to< vertices_pair > >;
+
   class Graph {
-    HashTable< graph_key, List< size_t >, xxhash< graph_key >, std::equal_to< graph_key > > links_;
+    graph_table links_;
     List< std::string >* vertices_;
     size_t links_count_;
     size_t vertices_count_;
@@ -23,11 +29,11 @@ namespace hachaturyanov
     Graph &operator=(const Graph &other);
     Graph &operator=(Graph &&other) noexcept;
 
-    Graph(size_t links_count,
-      List< std::pair< std::pair< std::string, std::string >, size_t > >* links_list);
+    Graph(size_t links_count, new_links_list* links_list);
 
     const List< std::string >* getVertices() const noexcept;
-    List< std::pair< std::string, List< size_t >* > >* getOutboundLinks(std::string vertex) const;
+    oneway_links_list* getLinks(const std::string &vertex, bool outbound) const;
+    void bind(const std::string &vertex1, const std::string &vertex2, size_t weight);
   };
 
 }

@@ -10,7 +10,7 @@ namespace hachaturyanov
   {}
 
   Graph::Graph(const Graph &other):
-   links_(HashTable< graph_key, List< size_t >, xxhash< graph_key >, std::equal_to< graph_key > >(other.links_)),
+   links_(graph_table(other.links_)),
    vertices_(new List< std::string >(*other.vertices_)),
    links_count_(other.links_count_),
    vertices_count_(other.vertices_count_)
@@ -66,8 +66,7 @@ namespace hachaturyanov
     list->insertBefore(it, val);
   }
 
-  Graph::Graph(size_t links_count,
-    List< std::pair< std::pair< std::string, std::string >, size_t > >* links_list):
+  Graph::Graph(size_t links_count, new_links_list* links_list):
    links_(),
    vertices_(nullptr),
    links_count_(links_count),
@@ -80,9 +79,9 @@ namespace hachaturyanov
       do {
         std::pair< std::pair< std::string, std::string >, size_t > data = *it;
         if (links_.has(data.first)) {
-          insertSorted< size_t >(&links_[data.first], data.second);
+          insertSorted< size_t >(links_[data.first], data.second);
         } else {
-          links_.add(data.first, List< size_t >{data.second});
+          links_.add(data.first, new List< size_t >{data.second});
         }
         if (!vertices_->has(data.first.first)) {
           insertSorted< std::string >(vertices_, data.first.first);
@@ -102,22 +101,48 @@ namespace hachaturyanov
     return vertices_;
   }
 
-  List< std::pair< std::string, List< size_t >* > >* Graph::getOutboundLinks(std::string vertex) const
+  oneway_links_list* Graph::getLinks(const std::string& vertex, bool outbound) const
   {
-    List< std::pair< std::string, List< size_t >* > >* result =
-    new List< std::pair< std::string, List< size_t >* > >();
-
     if (vertices_->has(vertex)) {
+      oneway_links_list* result = new oneway_links_list();
       auto start = vertices_->begin();
       auto it = start;
       do {
         std::string otherVertex = *it;
-        graph_key verticesPair = {vertex, otherVertex};
-        if (links_.has(verticesPair)) {
-          result->addEnd({otherVertex, &links_.get(verticesPair)});
+        vertices_pair verticesPair = {otherVertex, vertex};
+        if (outbound) {
+          verticesPair = {vertex, otherVertex};
         }
+        if (links_.has(verticesPair)) {
+          result->addEnd({otherVertex, links_.get(verticesPair)});
+        }
+        ++it;
       } while (it != start);
+      return result;
+    } else {
+      throw std::runtime_error("Vertex not found");
     }
-    return result;
+  }
+
+  void Graph::bind(const std::string &vertex1, const std::string &vertex2, size_t weight)
+  {
+    Graph temp(*this);
+    vertices_pair verticesPair = {vertex1, vertex2};
+    if (temp.links_.has(verticesPair)) {
+      insertSorted< size_t >(temp.links_[verticesPair], weight);
+    } else {
+      temp.links_.add(verticesPair, new List< size_t >{weight});
+    }
+    if (!temp.vertices_->has(vertex1)) {
+      insertSorted< std::string >(temp.vertices_, vertex1);
+      temp.vertices_count_++;
+    }
+    if (!temp.vertices_->has(vertex2)) {
+      insertSorted< std::string >(temp.vertices_, vertex2);
+      temp.vertices_count_++;
+    }
+    temp.links_count_++;
+
+    swap(temp);
   }
 }
