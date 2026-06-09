@@ -77,6 +77,7 @@ namespace hachaturyanov
     HashTable(const HashTable &other);
     HashTable(HashTable &&other) noexcept;
     HashTable &operator=(const HashTable &other);
+    HashTable &operator=(HashTable &&other) noexcept;
    private:
     Slot< Key, Value >* data_;
     size_t size_;
@@ -87,6 +88,16 @@ namespace hachaturyanov
     void swap(HashTable &other);
     size_t findIndex(const Key &key) const;
   };
+
+  template< class Key, class Value, class Hash, class Equal >
+  HashTable< Key, Value, Hash, Equal >
+  &HashTable< Key, Value, Hash, Equal >::operator=(HashTable &&other) noexcept
+  {
+    if (this != &other) {
+      swap(other);
+    }
+    return *this;
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   Value & HashTable< Key, Value, Hash, Equal >::get(const Key &key) const

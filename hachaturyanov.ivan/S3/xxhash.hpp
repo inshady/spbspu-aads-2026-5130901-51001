@@ -12,19 +12,8 @@ namespace hachaturyanov {
     std::uint64_t operator()(const Key &key) const noexcept
     {
       boost::hash2::xxhash_64 h;
-      h.update(&key, sizeof(Key));
+      boost::hash2::hash_append(h, {}, key);
       return h.result();
-    }
-  };
-
-  template<>
-  struct xxhash< std::string > {
-    std::uint64_t operator()(const std::string &key) const noexcept
-    {
-      boost::hash2::xxhash_64 h;
-      h.update(key.data() , key.size());
-      return h.result();
-
     }
   };
 
