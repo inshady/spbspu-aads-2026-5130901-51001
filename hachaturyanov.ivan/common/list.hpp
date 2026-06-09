@@ -17,9 +17,12 @@ namespace hachaturyanov
     List() noexcept;
     ~List();
     List(const List &other);
+    List(List &&other) noexcept;
+    List(T &val);
 
     size_t size() const noexcept;
     bool isEmpty() const noexcept;
+    bool has(const T &val) const noexcept;
 
     iter begin() noexcept;
     iter end() noexcept;
@@ -47,6 +50,33 @@ namespace hachaturyanov
     List& operator=(const List &other);
     List& operator=(List &&other);
   };
+
+  template< class T > bool List< T >::has(const T &val) const noexcept
+  {
+    if (!isEmpty()) {
+      citer first = begin();
+      citer it = first;
+      do {
+        if (*it == val) {
+          return true;
+        }
+      } while (it != first);
+    }
+    return false;
+  }
+
+  template< class T > List< T >::List(T &val):
+   head_(new node< T >(val)),
+   size_(1)
+  {}
+
+  template< class T > List< T >::List(List &&other) noexcept:
+   head_(other.head_),
+   size_(other.size_)
+  {
+    other.head_ = nullptr;
+    other.size_ = 0;
+  }
 
   template< class T > typename List< T >::iter List< T >::insertAfter(iter pos, T &&val)
   {
