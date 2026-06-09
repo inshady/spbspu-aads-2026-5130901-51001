@@ -3,7 +3,6 @@
 namespace hachaturyanov
 {
   Graph::Graph():
-   name_(""),
    links_(),
    vertices_(new List< std::string >()),
    links_count_(0),
@@ -11,7 +10,6 @@ namespace hachaturyanov
   {}
 
   Graph::Graph(const Graph &other):
-   name_(other.name_),
    links_(HashTable< graph_key, List< size_t >, xxhash< graph_key >, std::equal_to< graph_key > >(other.links_)),
    vertices_(new List< std::string >(*other.vertices_)),
    links_count_(other.links_count_),
@@ -19,7 +17,6 @@ namespace hachaturyanov
   {}
 
   Graph::Graph(Graph &&other) noexcept:
-   name_(std::move(other.name_)),
    links_(std::move(other.links_)),
    vertices_(other.vertices_),
    links_count_(other.links_count_),
@@ -32,7 +29,6 @@ namespace hachaturyanov
 
   void Graph::swap(Graph &other) noexcept
   {
-    std::swap(name_, other.name_);
     std::swap(links_, other.links_);
     std::swap(vertices_, other.vertices_);
     std::swap(links_count_, other.links_count_);
@@ -56,9 +52,22 @@ namespace hachaturyanov
     return *this;
   }
 
-  Graph::Graph(std::string name, size_t links_count,
+  template< class T > void Graph::insertSorted(List< T >* list, const T &val)
+  {
+    if (list->isEmpty()) {
+      list->addEnd(val);
+      return;
+    }
+    auto start = list->begin();
+    auto it = start;
+    do {
+      ++it;
+    } while (it != start && *it < val);
+    list->insertBefore(it, val);
+  }
+
+  Graph::Graph(size_t links_count,
     List< std::pair< std::pair< std::string, std::string >, size_t > >* links_list):
-   name_(std::move(name)),
    links_(),
    vertices_(nullptr),
    links_count_(links_count),
@@ -71,16 +80,16 @@ namespace hachaturyanov
       do {
         std::pair< std::pair< std::string, std::string >, size_t > data = *it;
         if (links_.has(data.first)) {
-          links_[data.first].addEnd(data.second);
+          insertSorted< size_t >(&links_[data.first], data.second);
         } else {
           links_.add(data.first, List< size_t >{data.second});
         }
         if (!vertices_->has(data.first.first)) {
-          vertices_->addEnd(data.first.first);
+          insertSorted< std::string >(vertices_, data.first.first);
           vertices_count_++;
         }
         if (!vertices_->has(data.first.second)) {
-          vertices_->addEnd(data.first.second);
+          insertSorted< std::string >(vertices_, data.first.second);
           vertices_count_++;
         }
         ++it;
@@ -88,5 +97,27 @@ namespace hachaturyanov
     }
   }
 
+  const List< std::string >* Graph::getVertices() const noexcept
+  {
+    return vertices_;
+  }
 
+  List< std::pair< std::string, List< size_t >* > >* Graph::getOutboundLinks(std::string vertex) const
+  {
+    List< std::pair< std::string, List< size_t >* > >* result =
+    new List< std::pair< std::string, List< size_t >* > >();
+
+    if (vertices_->has(vertex)) {
+      auto start = vertices_->begin();
+      auto it = start;
+      do {
+        std::string otherVertex = *it;
+        graph_key verticesPair = {vertex, otherVertex};
+        if (links_.has(verticesPair)) {
+          result->addEnd({otherVertex, &links_.get(verticesPair)});
+        }
+      } while (it != start);
+    }
+    return result;
+  }
 }
