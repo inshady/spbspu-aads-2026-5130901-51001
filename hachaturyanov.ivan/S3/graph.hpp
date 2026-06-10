@@ -11,7 +11,7 @@ namespace hachaturyanov
   using new_links_list = List< std::pair< vertices_pair, size_t > >;
   using oneway_links_list = List< std::pair< std::string, List< size_t >* > >;
 
-  using graph_table = HashTable< vertices_pair, List< size_t >*,
+  using graph_table = HashTable< vertices_pair, List< size_t >,
         xxhash< vertices_pair >, std::equal_to< vertices_pair > >;
 
   class Graph {
@@ -24,6 +24,7 @@ namespace hachaturyanov
     template< class T > void insertSorted(List< T >* list, const T &val);
    public:
     Graph();
+    ~Graph();
     Graph(const Graph &other);
     Graph(Graph &&other) noexcept;
     Graph &operator=(const Graph &other);
@@ -32,6 +33,7 @@ namespace hachaturyanov
     Graph(size_t links_count, new_links_list* links_list);
     Graph(size_t vertices_count, List< std::string >* vertices);
     Graph(const Graph &graph1, const Graph &graph2);
+    Graph(const Graph &other, size_t vertices_count, List< std::string >* vertices);
 
     const List< std::string >* getVertices() const noexcept;
     oneway_links_list* getLinks(const std::string &vertex, bool outbound) const;

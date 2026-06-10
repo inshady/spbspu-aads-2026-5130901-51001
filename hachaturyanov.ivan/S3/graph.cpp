@@ -79,9 +79,9 @@ namespace hachaturyanov
       do {
         std::pair< std::pair< std::string, std::string >, size_t > data = *it;
         if (links_.has(data.first)) {
-          insertSorted< size_t >(links_[data.first], data.second);
+          insertSorted< size_t >(&links_[data.first], data.second);
         } else {
-          links_.add(data.first, new List< size_t >{data.second});
+          links_.add(data.first, List< size_t >{data.second});
         }
         if (!vertices_->has(data.first.first)) {
           insertSorted< std::string >(vertices_, data.first.first);
@@ -114,7 +114,7 @@ namespace hachaturyanov
           verticesPair = {vertex, otherVertex};
         }
         if (links_.has(verticesPair)) {
-          result->addEnd({otherVertex, links_.get(verticesPair)});
+          result->addEnd({otherVertex, &links_.get(verticesPair)});
         }
         ++it;
       } while (it != start);
@@ -129,9 +129,9 @@ namespace hachaturyanov
     Graph temp(*this);
     vertices_pair verticesPair = {vertex1, vertex2};
     if (temp.links_.has(verticesPair)) {
-      insertSorted< size_t >(temp.links_[verticesPair], weight);
+      insertSorted< size_t >(&temp.links_[verticesPair], weight);
     } else {
-      temp.links_.add(verticesPair, new List< size_t >{weight});
+      temp.links_.add(verticesPair, List< size_t >{weight});
     }
     if (!temp.vertices_->has(vertex1)) {
       insertSorted< std::string >(temp.vertices_, vertex1);
@@ -153,10 +153,10 @@ namespace hachaturyanov
     if (!temp.vertices_->has(vertex1) || !temp.vertices_->has(vertex2)) {
       throw std::runtime_error("Vertex not found");
     }
-    if (!temp.links_.get(verticesPair)->has(weight)) {
+    if (!temp.links_.get(verticesPair).has(weight)) {
       throw std::runtime_error("Link not found");
     }
-    temp.links_.get(verticesPair)->erase(temp.links_.get(verticesPair)->find(weight));
+    temp.links_.get(verticesPair).erase(temp.links_.get(verticesPair).find(weight));
     temp.links_count_--;
 
     swap(temp);
@@ -198,5 +198,43 @@ namespace hachaturyanov
         links->clear();
       } while (it != start);
     }
+  }
+
+  Graph::Graph(const Graph &other, size_t vertices_count, List< std::string >* vertices):
+   links_(),
+   vertices_(new List< std::string >(*vertices)),
+   links_count_(0),
+   vertices_count_(vertices_count)
+  {
+    auto it = vertices_->begin();
+    do {
+      std::string vertex1 = *it;
+      if (other.vertices_->has(vertex1)) {
+        oneway_links_list* links = other.getLinks(vertex1, true);
+        auto linksIt = links->begin();
+        do {
+          std::string vertex2 = linksIt->first;
+          if (vertices_->has(vertex2)) {
+            List< size_t >* weights = linksIt->second;
+            auto weightsIt = weights->begin();
+            do {
+              size_t weight = *weightsIt;
+              bind(vertex1, vertex2, weight);
+              ++weightsIt;
+            } while (weightsIt != weights->begin());
+          }
+          ++linksIt;
+        } while (linksIt != links->begin());
+        delete links;
+      } else {
+        throw std::runtime_error("Vertex not found");
+      }
+      ++it;
+    } while (it != vertices_->begin());
+  }
+
+  Graph::~Graph()
+  {
+    delete vertices_;
   }
 }
