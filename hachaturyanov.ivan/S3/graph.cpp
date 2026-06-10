@@ -58,11 +58,10 @@ namespace hachaturyanov
       list->addEnd(val);
       return;
     }
-    auto start = list->begin();
-    auto it = start;
+    auto it = list->begin();
     do {
       ++it;
-    } while (it != start && *it < val);
+    } while (it != list->begin() && *it < val);
     list->insertBefore(it, val);
   }
 
@@ -74,8 +73,7 @@ namespace hachaturyanov
   {
     if (links_list) {
       vertices_ = new List< std::string >();
-      auto start = links_list->begin();
-      auto it = start;
+      auto it = links_list->begin();
       do {
         std::pair< std::pair< std::string, std::string >, size_t > data = *it;
         if (links_.has(data.first)) {
@@ -92,7 +90,7 @@ namespace hachaturyanov
           vertices_count_++;
         }
         ++it;
-      } while (it != start);
+      } while (it != links_list->begin());
     }
   }
 
@@ -105,8 +103,7 @@ namespace hachaturyanov
   {
     if (vertices_->has(vertex)) {
       oneway_links_list* result = new oneway_links_list();
-      auto start = vertices_->begin();
-      auto it = start;
+      auto it = vertices_->begin();
       do {
         std::string otherVertex = *it;
         vertices_pair verticesPair = {otherVertex, vertex};
@@ -117,7 +114,7 @@ namespace hachaturyanov
           result->addEnd({otherVertex, &links_.get(verticesPair)});
         }
         ++it;
-      } while (it != start);
+      } while (it != vertices_->begin());
       return result;
     } else {
       throw std::runtime_error("Vertex not found");
