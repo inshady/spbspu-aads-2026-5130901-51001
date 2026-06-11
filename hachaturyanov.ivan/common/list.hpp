@@ -39,6 +39,8 @@ namespace hachaturyanov
     iter insertBefore(iter pos, T &&val);
     iter insertAfter(iter pos, T &&val);
 
+    iter insertSorted(const T &val);
+
     iter find(const T &val);
 
     void popFront() noexcept;
@@ -52,6 +54,18 @@ namespace hachaturyanov
     List& operator=(const List &other);
     List& operator=(List &&other);
   };
+
+  template< class T > typename List< T >::iter List< T >::insertSorted(const T &val)
+  {
+    if (isEmpty()) {
+      return addEnd(val);
+    }
+    auto it = begin();
+    do {
+      ++it;
+    } while (it != begin() && *it < val);
+    return insertBefore(it, val);
+  }
 
   template< class T > typename List< T >::iter List< T >::find(const T &val)
   {
