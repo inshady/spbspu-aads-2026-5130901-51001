@@ -10,7 +10,7 @@ namespace hachaturyanov
   {}
 
   Graph::Graph(const Graph &other):
-   links_(graph_table(other.links_)),
+   links_(link_table(other.links_)),
    vertices_(new List< std::string >(*other.vertices_)),
    links_count_(other.links_count_),
    vertices_count_(other.vertices_count_)
@@ -27,7 +27,7 @@ namespace hachaturyanov
     other.vertices_count_ = 0;
   }
 
-  void Graph::swap(Graph &other) noexcept
+  void Graph::swap_(Graph &other) noexcept
   {
     std::swap(links_, other.links_);
     std::swap(vertices_, other.vertices_);
@@ -39,7 +39,7 @@ namespace hachaturyanov
   {
     if (this != &other) {
       Graph copy(other);
-      swap(copy);
+      swap_(copy);
     }
     return *this;
   }
@@ -47,7 +47,7 @@ namespace hachaturyanov
   Graph &Graph::operator=(Graph &&other) noexcept
   {
     if (this != &other) {
-      swap(other);
+      swap_(other);
     }
     return *this;
   }
@@ -127,7 +127,7 @@ namespace hachaturyanov
     }
     temp.links_count_++;
 
-    swap(temp);
+    swap_(temp);
   }
 
   void Graph::cut(const std::string &vertex1, const std::string &vertex2, size_t weight)
@@ -143,15 +143,21 @@ namespace hachaturyanov
     temp.links_.get(verticesPair).erase(temp.links_.get(verticesPair).find(weight));
     temp.links_count_--;
 
-    swap(temp);
+    swap_(temp);
   }
 
   Graph::Graph(size_t vertices_count, List< std::string >* vertices):
    links_(),
-   vertices_(new List< std::string >(*vertices)),
+   vertices_(new List< std::string >()),
    links_count_(0),
    vertices_count_(vertices_count)
-  {}
+  {
+    auto it = vertices->begin();
+    do {
+      vertices_->insertSorted(*it);
+      ++it;
+    } while (it != vertices->begin());
+  }
 
   Graph::Graph(const Graph &graph1, const Graph &graph2):
    Graph(graph1)
@@ -185,10 +191,7 @@ namespace hachaturyanov
   }
 
   Graph::Graph(const Graph &other, size_t vertices_count, List< std::string >* vertices):
-   links_(),
-   vertices_(new List< std::string >(*vertices)),
-   links_count_(0),
-   vertices_count_(vertices_count)
+   Graph(vertices_count, vertices)
   {
     auto it = vertices_->begin();
     do {

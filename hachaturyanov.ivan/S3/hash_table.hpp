@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <utility>
+#include "../common/list.hpp"
 
 
 namespace hachaturyanov
@@ -74,6 +75,8 @@ namespace hachaturyanov
 
     Value & operator[](const Key &key);
 
+    List< Key >* keys() const;
+
     HashTable(const HashTable &other);
     HashTable(HashTable &&other) noexcept;
     HashTable &operator=(const HashTable &other);
@@ -85,16 +88,28 @@ namespace hachaturyanov
     Hash hash_;
     Equal equal_;
 
-    void swap(HashTable &other);
-    size_t findIndex(const Key &key) const;
+    void swap_(HashTable &other);
+    size_t findIndex_(const Key &key) const;
   };
+
+  template< class Key, class Value, class Hash, class Equal >
+  List< Key >* HashTable< Key, Value, Hash, Equal >::keys() const
+  {
+    List< Key >* result = new List< Key >();
+    for (size_t i = 0; i < capacity_; i++) {
+      if (data_[i].state == OCCUPIED) {
+        result->insertSorted(data_[i].key);
+      }
+    }
+    return result;
+  }
 
   template< class Key, class Value, class Hash, class Equal >
   HashTable< Key, Value, Hash, Equal >
   &HashTable< Key, Value, Hash, Equal >::operator=(HashTable &&other) noexcept
   {
     if (this != &other) {
-      swap(other);
+      swap_(other);
     }
     return *this;
   }
@@ -102,7 +117,7 @@ namespace hachaturyanov
   template< class Key, class Value, class Hash, class Equal >
   Value & HashTable< Key, Value, Hash, Equal >::get(const Key &key) const
   {
-    size_t id = findIndex(key);
+    size_t id = findIndex_(key);
     if (id == capacity_ || data_[id].state != OCCUPIED) {
       throw std::runtime_error("Key not found");
     }
@@ -112,7 +127,7 @@ namespace hachaturyanov
   template< class Key, class Value, class Hash, class Equal >
   Value & HashTable< Key, Value, Hash, Equal >::operator[](const Key &key)
   {
-    size_t id = findIndex(key);
+    size_t id = findIndex_(key);
     if (id == capacity_) {
       throw std::runtime_error("Failed to add key-value pair, rehashing recommended");
     }
@@ -126,7 +141,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  size_t HashTable< Key, Value, Hash, Equal >::findIndex(const Key &key) const
+  size_t HashTable< Key, Value, Hash, Equal >::findIndex_(const Key &key) const
   {
     size_t tombstone_id = capacity_;
     for (size_t i = 0; i < capacity_; i++) {
@@ -153,7 +168,7 @@ namespace hachaturyanov
   {
     if (this != &other) {
       HashTable< Key, Value, Hash, Equal > temp(other);
-      swap(temp);
+      swap_(temp);
     }
     return *this;
   }
@@ -212,7 +227,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  void HashTable< Key, Value, Hash, Equal >::swap(HashTable &other)
+  void HashTable< Key, Value, Hash, Equal >::swap_(HashTable &other)
   {
     std::swap(data_, other.data_);
     std::swap(size_, other.size_);
@@ -244,7 +259,7 @@ namespace hachaturyanov
   template< class Key, class Value, class Hash, class Equal >
   void HashTable< Key, Value, Hash, Equal >::add(const Key &key, const Value &value)
   {
-    size_t id = findIndex(key);
+    size_t id = findIndex_(key);
     if (id == capacity_) {
       throw std::runtime_error("Failed to add key-value pair, rehashing recommended");
     }
@@ -259,7 +274,7 @@ namespace hachaturyanov
   template< class Key, class Value, class Hash, class Equal >
   Value HashTable< Key, Value, Hash, Equal >::drop(const Key &key)
   {
-    size_t id = findIndex(key);
+    size_t id = findIndex_(key);
     if (id == capacity_ || data_[id].state != OCCUPIED) {
       throw std::runtime_error("Key not found");
     }
@@ -272,7 +287,7 @@ namespace hachaturyanov
   template< class Key, class Value, class Hash, class Equal >
   bool HashTable< Key, Value, Hash, Equal >::has(const Key &key) const
   {
-    size_t id = findIndex(key);
+    size_t id = findIndex_(key);
     return id != capacity_ && data_[id].state == OCCUPIED;
   }
 

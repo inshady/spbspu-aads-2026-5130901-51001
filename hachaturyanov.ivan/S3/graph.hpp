@@ -11,16 +11,16 @@ namespace hachaturyanov
   using new_links_list = List< std::pair< vertices_pair, size_t > >;
   using oneway_links_list = List< std::pair< std::string, List< size_t >* > >;
 
-  using graph_table = HashTable< vertices_pair, List< size_t >,
+  using link_table = HashTable< vertices_pair, List< size_t >,
         xxhash< vertices_pair >, std::equal_to< vertices_pair > >;
 
   class Graph {
-    graph_table links_;
+    link_table links_;
     List< std::string >* vertices_;
     size_t links_count_;
     size_t vertices_count_;
 
-    void swap(Graph &other) noexcept;
+    void swap_(Graph &other) noexcept;
    public:
     Graph();
     ~Graph();
