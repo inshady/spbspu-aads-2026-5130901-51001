@@ -52,19 +52,6 @@ namespace hachaturyanov
     return *this;
   }
 
-  template< class T > void Graph::insertSorted(List< T >* list, const T &val)
-  {
-    if (list->isEmpty()) {
-      list->addEnd(val);
-      return;
-    }
-    auto it = list->begin();
-    do {
-      ++it;
-    } while (it != list->begin() && *it < val);
-    list->insertBefore(it, val);
-  }
-
   Graph::Graph(size_t links_count, new_links_list* links_list):
    links_(),
    vertices_(nullptr),
@@ -77,16 +64,16 @@ namespace hachaturyanov
       do {
         std::pair< std::pair< std::string, std::string >, size_t > data = *it;
         if (links_.has(data.first)) {
-          insertSorted< size_t >(&links_[data.first], data.second);
+          links_[data.first].insertSorted(data.second);
         } else {
           links_.add(data.first, List< size_t >{data.second});
         }
         if (!vertices_->has(data.first.first)) {
-          insertSorted< std::string >(vertices_, data.first.first);
+          vertices_->insertSorted(data.first.first);
           vertices_count_++;
         }
         if (!vertices_->has(data.first.second)) {
-          insertSorted< std::string >(vertices_, data.first.second);
+          vertices_->insertSorted(data.first.second);
           vertices_count_++;
         }
         ++it;
@@ -126,16 +113,16 @@ namespace hachaturyanov
     Graph temp(*this);
     vertices_pair verticesPair = {vertex1, vertex2};
     if (temp.links_.has(verticesPair)) {
-      insertSorted< size_t >(&temp.links_[verticesPair], weight);
+      temp.links_[verticesPair].insertSorted(weight);
     } else {
       temp.links_.add(verticesPair, List< size_t >{weight});
     }
     if (!temp.vertices_->has(vertex1)) {
-      insertSorted< std::string >(temp.vertices_, vertex1);
+      temp.vertices_->insertSorted(vertex1);
       temp.vertices_count_++;
     }
     if (!temp.vertices_->has(vertex2)) {
-      insertSorted< std::string >(temp.vertices_, vertex2);
+      temp.vertices_->insertSorted(vertex2);
       temp.vertices_count_++;
     }
     temp.links_count_++;
@@ -175,7 +162,7 @@ namespace hachaturyanov
       do {
         std::string vertex1 = *it;
         if (!vertices_->has(vertex1)) {
-          insertSorted< std::string >(vertices_, vertex1);
+          vertices_->insertSorted(vertex1);
           vertices_count_++;
         }
         oneway_links_list* links = graph2.getLinks(vertex1, true);

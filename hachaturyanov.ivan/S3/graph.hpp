@@ -21,7 +21,6 @@ namespace hachaturyanov
     size_t vertices_count_;
 
     void swap(Graph &other) noexcept;
-    template< class T > void insertSorted(List< T >* list, const T &val);
    public:
     Graph();
     ~Graph();
