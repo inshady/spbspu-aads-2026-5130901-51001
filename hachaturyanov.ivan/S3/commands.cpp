@@ -212,7 +212,7 @@ namespace hachaturyanov
         } else if (*it == "create") {
           ++it;
           std::string graphName = *it;
-          if (strs.size() > 2) {
+          if (strs.size() > 3) {
             ++it;
             size_t n = stoi(*it);
             List< std::string > vertices;
