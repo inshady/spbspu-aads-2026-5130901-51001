@@ -127,7 +127,7 @@ namespace hachaturyanov
       if (n) {
         graphs[graph] = Graph(n, &vertices);
       } else {
-        graphs[graph];
+        graphs.add(graph, Graph());
       }
     } else {
       out << "<INVALID COMMAND>" << '\n';
@@ -177,19 +177,35 @@ namespace hachaturyanov
         if (*it == "graphs") {
           cmdGraphs(graphs, out);
         } else if (*it == "vertexes") {
+          if (strs.size() != 2) {
+            out << "<INVALID COMMAND>" << '\n';
+            continue;
+          }
           ++it;
           cmdVertexes(graphs, *it, out);
         } else if (*it == "outbound") {
+          if (strs.size() != 3) {
+            out << "<INVALID COMMAND>" << '\n';
+            continue;
+          }
           ++it;
           std::string graphName = *it;
           ++it;
           cmdInOutbound(graphs, graphName, *it, true, out);
         } else if (*it == "inbound") {
+          if (strs.size() != 3) {
+            out << "<INVALID COMMAND>" << '\n';
+            continue;
+          }
           ++it;
           std::string graphName = *it;
           ++it;
           cmdInOutbound(graphs, graphName, *it, false, out);
         } else if (*it == "bind") {
+          if (strs.size() != 5) {
+            out << "<INVALID COMMAND>" << '\n';
+            continue;
+          }
           ++it;
           std::string graphName = *it;
           ++it;
@@ -200,6 +216,10 @@ namespace hachaturyanov
           size_t weight = stoi(*it);
           cmdBind(graphs, graphName, vertex1, vertex2, weight, out);
         } else if (*it == "cut") {
+          if (strs.size() != 5) {
+            out << "<INVALID COMMAND>" << '\n';
+            continue;
+          }
           ++it;
           std::string graphName = *it;
           ++it;
@@ -210,15 +230,25 @@ namespace hachaturyanov
           size_t weight = stoi(*it);
           cmdCut(graphs, graphName, vertex1, vertex2, weight, out);
         } else if (*it == "create") {
+          if (strs.size() != 4 || strs.size() != 2 || strs.size() != 3) {
+            out << "<INVALID COMMAND>" << '\n';
+            continue;
+          }
           ++it;
           std::string graphName = *it;
-          if (strs.size() > 3) {
+          if (strs.size() > 2) {
             ++it;
+            if (!isdigit(*it)) {
+              out << "<INVALID COMMAND>" << '\n';
+              continue;
+            }
             size_t n = stoi(*it);
             List< std::string > vertices;
-            for (size_t i = 0; i < n; i++) {
-              ++it;
-              vertices.insertSorted(*it);
+            if (strs.size() > 3) {
+              for (size_t i = 0; i < n; i++) {
+                ++it;
+                vertices.insertSorted(*it);
+              }
             }
             cmdCreate(graphs, graphName, n, vertices, out);
           } else {
@@ -226,6 +256,10 @@ namespace hachaturyanov
             cmdCreate(graphs, graphName, 0, vertices, out);
           }
         } else if (*it == "merge") {
+          if (strs.size() != 4) {
+            out << "<INVALID COMMAND>" << '\n';
+            continue;
+          }
           ++it;
           std::string newGraph = *it;
           ++it;
@@ -234,6 +268,10 @@ namespace hachaturyanov
           std::string oldGraph2 = *it;
           cmdMerge(graphs, newGraph, oldGraph1, oldGraph2, out);
         } else if (*it == "extract") {
+          if (strs.size() != 5) {
+            out << "<INVALID COMMAND>" << '\n';
+            continue;
+          }
           ++it;
           std::string newGraph = *it;
           ++it;
@@ -246,6 +284,8 @@ namespace hachaturyanov
             vertices.insertSorted(*it);
           }
           cmdExtract(graphs, newGraph, oldGraph, n, vertices, out);
+        } else {
+          out << "<INVALID COMMAND>" << '\n';
         }
       }
     }

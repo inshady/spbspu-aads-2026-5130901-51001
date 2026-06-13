@@ -7,6 +7,7 @@
 namespace hachaturyanov
 {
   List< std::string > split(std::string line);
+  bool isdigit(std::string str);
 }
 
 #endif
