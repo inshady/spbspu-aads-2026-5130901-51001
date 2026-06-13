@@ -1,11 +1,7 @@
-#include <iostream>
-#include "graph.hpp"
-#include "io_utils.cpp"
+#include "commands.hpp"
 
 namespace hachaturyanov
 {
-  using GraphTable = HashTable< std::string, Graph,
-        xxhash< std::string >, std::equal_to< std::string > >;
 
   void readFile(std::istream &in, GraphTable &graphs)
   {
@@ -157,4 +153,12 @@ namespace hachaturyanov
       throw std::logic_error("New graph already exists");
     }
   }
+
+  // void process(std::istream &in, std::ostream &out, GraphTable &graphs)
+  // {
+  //   std::string line = "";
+  //   while(std::getline(in, line)) {
+
+  //   }
+  // }
 }

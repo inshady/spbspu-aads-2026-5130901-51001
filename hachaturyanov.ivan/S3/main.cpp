@@ -1,8 +1,4 @@
-#include "commands.cpp"
+#include "commands.hpp"
 
 int main()
-{
-  hachaturyanov::GraphTable graphs;
-
-  hachaturyanov::cmdGraphs(graphs, std::cout);
-}
+{}

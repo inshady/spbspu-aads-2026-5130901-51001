@@ -1,5 +1,4 @@
-#include <iostream>
-#include "../common/list.hpp"
+#include "io_utils.hpp"
 
 namespace hachaturyanov
 {
