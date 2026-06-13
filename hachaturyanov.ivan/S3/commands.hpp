@@ -1,3 +1,6 @@
+#ifndef COMMANDS_HPP
+#define COMMANDS_HPP
+
 #include <iostream>
 #include "graph.hpp"
 #include "io_utils.hpp"
@@ -24,3 +27,5 @@ namespace hachaturyanov
         size_t n, List< std::string > &vertices, std::ostream &out);
   void process(std::istream &in, std::ostream &out, GraphTable &graphs);
 }
+
+#endif

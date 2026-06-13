@@ -66,6 +66,9 @@ namespace hachaturyanov
         if (links_.has(data.first)) {
           links_[data.first].insertSorted(data.second);
         } else {
+          if (links_.size() * 2 > links_.capacity()) {
+            links_.rehash(links_.capacity() * 2);
+          }
           links_.add(data.first, List< size_t >{data.second});
         }
         if (!vertices_->has(data.first.first)) {
@@ -115,6 +118,9 @@ namespace hachaturyanov
     if (temp.links_.has(verticesPair)) {
       temp.links_[verticesPair].insertSorted(weight);
     } else {
+      if (temp.links_.size() * 2 > temp.links_.capacity()) {
+        temp.links_.rehash(temp.links_.capacity() * 2);
+      }
       temp.links_.add(verticesPair, List< size_t >{weight});
     }
     if (!temp.vertices_->has(vertex1)) {
@@ -137,7 +143,7 @@ namespace hachaturyanov
     if (!temp.vertices_->has(vertex1) || !temp.vertices_->has(vertex2)) {
       throw std::logic_error("Vertex not found");
     }
-    if (!temp.links_.get(verticesPair).has(weight)) {
+    if (!temp.links_.has(verticesPair) || !temp.links_.get(verticesPair).has(weight)) {
       throw std::logic_error("Link not found");
     }
     temp.links_.get(verticesPair).erase(temp.links_.get(verticesPair).find(weight));
@@ -152,11 +158,13 @@ namespace hachaturyanov
    links_count_(0),
    vertices_count_(vertices_count)
   {
-    auto it = vertices->begin();
-    do {
-      vertices_->insertSorted(*it);
-      ++it;
-    } while (it != vertices->begin());
+    if (!vertices->isEmpty()) {
+      auto it = vertices->begin();
+      do {
+        vertices_->insertSorted(*it);
+        ++it;
+      } while (it != vertices->begin());
+    }
   }
 
   Graph::Graph(const Graph &graph1, const Graph &graph2):
@@ -172,18 +180,20 @@ namespace hachaturyanov
           vertices_count_++;
         }
         oneway_links_list links = graph2.getLinks(vertex1, true);
-        auto linksIt = links.begin();
-        do {
-          std::string vertex2 = linksIt->first;
-          List< size_t > weights = linksIt->second;
-          auto weightsIt = weights.begin();
+        if (!links.isEmpty()) {
+          auto linksIt = links.begin();
           do {
-            size_t weight = *weightsIt;
-            bind(vertex1, vertex2, weight);
-            ++weightsIt;
-          } while (weightsIt != weights.begin());
-          ++linksIt;
-        } while (linksIt != links.begin());
+            std::string vertex2 = linksIt->first;
+            List< size_t > weights = linksIt->second;
+            auto weightsIt = weights.begin();
+            do {
+              size_t weight = *weightsIt;
+              bind(vertex1, vertex2, weight);
+              ++weightsIt;
+            } while (weightsIt != weights.begin());
+            ++linksIt;
+          } while (linksIt != links.begin());
+        }
         ++it;
       } while (it != start);
     }
@@ -192,30 +202,34 @@ namespace hachaturyanov
   Graph::Graph(const Graph &other, size_t vertices_count, const List< std::string >* vertices):
    Graph(vertices_count, vertices)
   {
-    auto it = vertices_->begin();
+    auto it = vertices->begin();
     do {
       std::string vertex1 = *it;
       if (other.vertices_->has(vertex1)) {
         oneway_links_list links = other.getLinks(vertex1, true);
-        auto linksIt = links.begin();
-        do {
-          std::string vertex2 = linksIt->first;
-          if (vertices_->has(vertex2)) {
-            List< size_t > weights = linksIt->second;
-            auto weightsIt = weights.begin();
-            do {
-              size_t weight = *weightsIt;
-              bind(vertex1, vertex2, weight);
-              ++weightsIt;
-            } while (weightsIt != weights.begin());
-          }
-          ++linksIt;
-        } while (linksIt != links.begin());
+        if (!links.isEmpty()) {
+          auto linksIt = links.begin();
+          do {
+            std::string vertex2 = linksIt->first;
+            if (vertices_->has(vertex2)) {
+              List< size_t > weights = linksIt->second;
+              if (!weights.isEmpty()) {
+                auto weightsIt = weights.begin();
+                do {
+                  size_t weight = *weightsIt;
+                  bind(vertex1, vertex2, weight);
+                  ++weightsIt;
+                } while (weightsIt != weights.begin());
+              }
+            }
+            ++linksIt;
+          } while (linksIt != links.begin());
+        }
       } else {
         throw std::logic_error("Vertex not found");
       }
       ++it;
-    } while (it != vertices_->begin());
+    } while (it != vertices->begin());
   }
 
   Graph::~Graph()

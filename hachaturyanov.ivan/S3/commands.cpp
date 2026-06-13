@@ -14,7 +14,10 @@ namespace hachaturyanov
         auto it = strs.begin();
         current_graph = *it;
         ++it;
-        graphs[current_graph] = Graph();
+        if (graphs.size() / graphs.capacity() > 0.5) {
+        graphs.rehash(graphs.capacity() * 2);
+        }
+        graphs[current_graph];
       } else if (strs.size() == 3) {
         auto it = strs.begin();
         std::pair< std::string, std::string > vertices = {};
@@ -32,27 +35,28 @@ namespace hachaturyanov
   void cmdGraphs(const GraphTable &graphs, std::ostream &out)
   {
     List< std::string > graphNames = graphs.keys();
-    auto it = graphNames.begin();
-    do {
-      out << *it << '\n';
-      ++it;
-    } while (it != graphNames.begin());
-    graphNames.clear();
+    if (!graphNames.isEmpty()) {
+      auto it = graphNames.begin();
+      do {
+        out << *it << '\n';
+        ++it;
+      } while (it != graphNames.begin());
+    }
   }
 
   void cmdVertexes(const GraphTable &graphs, const std::string &graphName, std::ostream &out)
   {
     if (graphs.has(graphName)) {
       const List< std::string > * vertexes = graphs.get(graphName).getVertices();
-
-      auto it = vertexes->begin();
-      do {
-        out << *it << '\n';
-        ++it;
-      } while (it != vertexes->begin());
+      if (!vertexes->isEmpty()) {
+        auto it = vertexes->begin();
+        do {
+          out << *it << '\n';
+          ++it;
+        } while (it != vertexes->begin());
+      }
     } else {
       out << "<INVALID COMMAND>" << '\n';
-      throw std::logic_error("Incorrect graph name");
     }
   }
 
@@ -62,30 +66,33 @@ namespace hachaturyanov
     if (graphs.has(graphName)) {
       const Graph &graph = graphs.get(graphName);
       if (graph.getVertices()->has(vertexName)) {
-        oneway_links_list links = graph.getLinks(vertexName, outbound);
+        oneway_links_list links;
+        try {
+          links = graph.getLinks(vertexName, outbound);
+        } catch (std::logic_error &) {
+          out << "<INVALID COMMAND>" << '\n';
+        }
         if (!links.isEmpty()) {
           auto it = links.begin();
           do {
             std::pair< std::string, List< size_t > > verLinks = *it;
-            out << verLinks.first;
             if (!verLinks.second.isEmpty()) {
+              out << verLinks.first;
               auto linksIt = verLinks.second.begin();
               do {
-                out << *linksIt;
+                out << ' ' << *linksIt;
                 ++linksIt;
               } while (linksIt != verLinks.second.begin());
-            }
             out << '\n';
+            }
             ++it;
           } while (it != links.begin());
         }
       } else {
         out << "<INVALID COMMAND>" << '\n';
-        throw std::logic_error("Incorrect vertex name");
       }
     } else {
       out << "<INVALID COMMAND>" << '\n';
-      throw std::logic_error("Incorrect graph name");
     }
   }
 
@@ -96,7 +103,6 @@ namespace hachaturyanov
       graphs[graph].bind(vertex1, vertex2, weight);
     } else {
       out << "<INVALID COMMAND>" << '\n';
-      throw std::logic_error("Incorrect graph name");
     }
   }
 
@@ -104,10 +110,13 @@ namespace hachaturyanov
         const std::string &vertex2, size_t weight, std::ostream &out)
   {
     if (graphs.has(graph)) {
-      graphs[graph].cut(vertex1, vertex2, weight);
+      try {
+        graphs[graph].cut(vertex1, vertex2, weight);
+      } catch (std::logic_error &) {
+        out << "<INVALID COMMAND>" << '\n';
+      }
     } else {
       out << "<INVALID COMMAND>" << '\n';
-      throw std::logic_error("Incorrect graph name");
     }
   }
 
@@ -115,10 +124,13 @@ namespace hachaturyanov
         List< std::string > &vertices, std::ostream &out)
   {
     if (!graphs.has(graph)) {
-      graphs[graph] = Graph(n, &vertices);
+      if (n) {
+        graphs[graph] = Graph(n, &vertices);
+      } else {
+        graphs[graph];
+      }
     } else {
       out << "<INVALID COMMAND>" << '\n';
-      throw std::logic_error("Graph already exists");
     }
   }
 
@@ -130,11 +142,9 @@ namespace hachaturyanov
         graphs[newgraph] = Graph(graphs[graph1], graphs[graph2]);
       } else {
         out << "<INVALID COMMAND>" << '\n';
-        throw std::logic_error("One of two old graphs doesn't exist");
       }
     } else {
-      out << "<INVALID COMMAND" << '\n';
-      throw std::logic_error("New graph already exists");
+      out << "<INVALID COMMAND>" << '\n';
     }
   }
 
@@ -143,14 +153,17 @@ namespace hachaturyanov
   {
     if (!graphs.has(newgraph)) {
       if (graphs.has(oldgraph)) {
-        graphs[newgraph] = Graph(graphs[oldgraph], n, &vertices);
+        try {
+          Graph g(graphs[oldgraph], n, &vertices);
+          graphs[newgraph] = std::move(g);
+        } catch (std::logic_error &) {
+          out << "<INVALID COMMAND>" << '\n';
+        }
       } else {
         out << "<INVALID COMMAND>" << '\n';
-        throw std::logic_error("Old graph doesn't exist");
       }
     } else {
       out << "<INVALID COMMAND>" << '\n';
-      throw std::logic_error("New graph already exists");
     }
   }
 
@@ -159,74 +172,81 @@ namespace hachaturyanov
     std::string line = "";
     while(std::getline(in, line)) {
       List< std::string > strs = split(line);
-      auto it = strs.begin();
-      if (*it == "graphs") {
-        cmdGraphs(graphs, out);
-      } else if (*it == "vertexes") {
-        ++it;
-        cmdVertexes(graphs, *it, out);
-      } else if (*it == "outbound") {
-        ++it;
-        std::string graphName = *it;
-        ++it;
-        cmdInOutbound(graphs, graphName, *it, true, out);
-      } else if (*it == "inbound") {
-        ++it;
-        std::string graphName = *it;
-        ++it;
-        cmdInOutbound(graphs, graphName, *it, false, out);
-      } else if (*it == "bind") {
-        ++it;
-        std::string graphName = *it;
-        ++it;
-        std::string vertex1 = *it;
-        ++it;
-        std::string vertex2 = *it;
-        ++it;
-        size_t weight = stoi(*it);
-        cmdBind(graphs, graphName, vertex1, vertex2, weight, out);
-      } else if (*it == "cut") {
-        ++it;
-        std::string graphName = *it;
-        ++it;
-        std::string vertex1 = *it;
-        ++it;
-        std::string vertex2 = *it;
-        ++it;
-        size_t weight = stoi(*it);
-        cmdCut(graphs, graphName, vertex1, vertex2, weight, out);
-      } else if (*it == "create") {
-        ++it;
-        std::string graphName = *it;
-        ++it;
-        size_t n = stoi(*it);
-        List< std::string > vertices;
-        for (size_t i = 0; i < n; i++) {
+      if (!strs.isEmpty()) {
+        auto it = strs.begin();
+        if (*it == "graphs") {
+          cmdGraphs(graphs, out);
+        } else if (*it == "vertexes") {
           ++it;
-          vertices.insertSorted(*it);
-        }
-        cmdCreate(graphs, graphName, n, vertices, out);
-      } else if (*it == "merge") {
-        ++it;
-        std::string newGraph = *it;
-        ++it;
-        std::string oldGraph1 = *it;
-        ++it;
-        std::string oldGraph2 = *it;
-        cmdMerge(graphs, newGraph, oldGraph1, oldGraph2, out);
-      } else if (*it == "extract") {
-        ++it;
-        std::string newGraph = *it;
-        ++it;
-        std::string oldGraph = *it;
-        ++it;
-        size_t n = stoi(*it);
-        List< std::string > vertices;
-        for (size_t i = 0; i < n; i++) {
+          cmdVertexes(graphs, *it, out);
+        } else if (*it == "outbound") {
           ++it;
-          vertices.insertSorted(*it);
+          std::string graphName = *it;
+          ++it;
+          cmdInOutbound(graphs, graphName, *it, true, out);
+        } else if (*it == "inbound") {
+          ++it;
+          std::string graphName = *it;
+          ++it;
+          cmdInOutbound(graphs, graphName, *it, false, out);
+        } else if (*it == "bind") {
+          ++it;
+          std::string graphName = *it;
+          ++it;
+          std::string vertex1 = *it;
+          ++it;
+          std::string vertex2 = *it;
+          ++it;
+          size_t weight = stoi(*it);
+          cmdBind(graphs, graphName, vertex1, vertex2, weight, out);
+        } else if (*it == "cut") {
+          ++it;
+          std::string graphName = *it;
+          ++it;
+          std::string vertex1 = *it;
+          ++it;
+          std::string vertex2 = *it;
+          ++it;
+          size_t weight = stoi(*it);
+          cmdCut(graphs, graphName, vertex1, vertex2, weight, out);
+        } else if (*it == "create") {
+          ++it;
+          std::string graphName = *it;
+          if (strs.size() > 2) {
+            ++it;
+            size_t n = stoi(*it);
+            List< std::string > vertices;
+            for (size_t i = 0; i < n; i++) {
+              ++it;
+              vertices.insertSorted(*it);
+            }
+            cmdCreate(graphs, graphName, n, vertices, out);
+          } else {
+            List< std::string > vertices;
+            cmdCreate(graphs, graphName, 0, vertices, out);
+          }
+        } else if (*it == "merge") {
+          ++it;
+          std::string newGraph = *it;
+          ++it;
+          std::string oldGraph1 = *it;
+          ++it;
+          std::string oldGraph2 = *it;
+          cmdMerge(graphs, newGraph, oldGraph1, oldGraph2, out);
+        } else if (*it == "extract") {
+          ++it;
+          std::string newGraph = *it;
+          ++it;
+          std::string oldGraph = *it;
+          ++it;
+          size_t n = stoi(*it);
+          List< std::string > vertices;
+          for (size_t i = 0; i < n; i++) {
+            ++it;
+            vertices.insertSorted(*it);
+          }
+          cmdExtract(graphs, newGraph, oldGraph, n, vertices, out);
         }
-        cmdExtract(graphs, newGraph, oldGraph, n, vertices, out);
       }
     }
   }
