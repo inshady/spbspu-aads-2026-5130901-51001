@@ -60,11 +60,15 @@ namespace hachaturyanov
     if (isEmpty()) {
       return addEnd(val);
     }
-    auto it = begin();
+    auto first = begin();
+    auto it = first;
     do {
+      if (*it >= val) {
+        return insertBefore(it, val);
+      }
       ++it;
-    } while (it != begin() && *it < val);
-    return insertBefore(it, val);
+    } while (it != first);
+    return addEnd(val);
   }
 
   template< class T > typename List< T >::iter List< T >::find(const T &val)
@@ -91,15 +95,18 @@ namespace hachaturyanov
         if (*it == val) {
           return true;
         }
+        ++it;
       } while (it != first);
     }
     return false;
   }
 
   template< class T > List< T >::List(T &val):
-   head_(new node< T >(val)),
-   size_(1)
-  {}
+   head_(nullptr),
+   size_(0)
+  {
+    addEnd(val);
+  }
 
   template< class T > List< T >::List(List &&other) noexcept:
    head_(other.head_),
