@@ -154,11 +154,80 @@ namespace hachaturyanov
     }
   }
 
-  // void process(std::istream &in, std::ostream &out, GraphTable &graphs)
-  // {
-  //   std::string line = "";
-  //   while(std::getline(in, line)) {
-
-  //   }
-  // }
+  void process(std::istream &in, std::ostream &out, GraphTable &graphs)
+  {
+    std::string line = "";
+    while(std::getline(in, line)) {
+      List< std::string > strs = split(line);
+      auto it = strs.begin();
+      if (*it == "graphs") {
+        cmdGraphs(graphs, out);
+      } else if (*it == "vertexes") {
+        ++it;
+        cmdVertexes(graphs, *it, out);
+      } else if (*it == "outbound") {
+        ++it;
+        std::string graphName = *it;
+        ++it;
+        cmdInOutbound(graphs, graphName, *it, true, out);
+      } else if (*it == "inbound") {
+        ++it;
+        std::string graphName = *it;
+        ++it;
+        cmdInOutbound(graphs, graphName, *it, false, out);
+      } else if (*it == "bind") {
+        ++it;
+        std::string graphName = *it;
+        ++it;
+        std::string vertex1 = *it;
+        ++it;
+        std::string vertex2 = *it;
+        ++it;
+        size_t weight = stoi(*it);
+        cmdBind(graphs, graphName, vertex1, vertex2, weight, out);
+      } else if (*it == "cut") {
+        ++it;
+        std::string graphName = *it;
+        ++it;
+        std::string vertex1 = *it;
+        ++it;
+        std::string vertex2 = *it;
+        ++it;
+        size_t weight = stoi(*it);
+        cmdCut(graphs, graphName, vertex1, vertex2, weight, out);
+      } else if (*it == "create") {
+        ++it;
+        std::string graphName = *it;
+        ++it;
+        size_t n = stoi(*it);
+        List< std::string > vertices;
+        for (size_t i = 0; i < n; i++) {
+          ++it;
+          vertices.insertSorted(*it);
+        }
+        cmdCreate(graphs, graphName, n, vertices, out);
+      } else if (*it == "merge") {
+        ++it;
+        std::string newGraph = *it;
+        ++it;
+        std::string oldGraph1 = *it;
+        ++it;
+        std::string oldGraph2 = *it;
+        cmdMerge(graphs, newGraph, oldGraph1, oldGraph2, out);
+      } else if (*it == "extract") {
+        ++it;
+        std::string newGraph = *it;
+        ++it;
+        std::string oldGraph = *it;
+        ++it;
+        size_t n = stoi(*it);
+        List< std::string > vertices;
+        for (size_t i = 0; i < n; i++) {
+          ++it;
+          vertices.insertSorted(*it);
+        }
+        cmdExtract(graphs, newGraph, oldGraph, n, vertices, out);
+      }
+    }
+  }
 }

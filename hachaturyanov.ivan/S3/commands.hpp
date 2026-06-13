@@ -22,4 +22,5 @@ namespace hachaturyanov
         std::string &graph1, std::string &graph2, std::ostream &out);
   void cmdExtract(GraphTable &graphs, std::string &newgraph, std::string &oldgraph,
         size_t n, List< std::string > &vertices, std::ostream &out);
+  void process(std::istream &in, std::ostream &out, GraphTable &graphs);
 }
