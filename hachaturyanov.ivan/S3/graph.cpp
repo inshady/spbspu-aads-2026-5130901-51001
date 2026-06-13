@@ -86,10 +86,10 @@ namespace hachaturyanov
     return vertices_;
   }
 
-  oneway_links_list* Graph::getLinks(const std::string& vertex, bool outbound) const
+  oneway_links_list Graph::getLinks(const std::string& vertex, bool outbound) const
   {
     if (vertices_->has(vertex)) {
-      oneway_links_list* result = new oneway_links_list();
+      oneway_links_list result;
       auto it = vertices_->begin();
       do {
         std::string otherVertex = *it;
@@ -98,13 +98,13 @@ namespace hachaturyanov
           verticesPair = {vertex, otherVertex};
         }
         if (links_.has(verticesPair)) {
-          result->addEnd({otherVertex, &links_.get(verticesPair)});
+          result.addEnd({otherVertex, links_.get(verticesPair)});
         }
         ++it;
       } while (it != vertices_->begin());
       return result;
     } else {
-      throw std::runtime_error("Vertex not found");
+      throw std::logic_error("Vertex not found");
     }
   }
 
@@ -135,10 +135,10 @@ namespace hachaturyanov
     Graph temp(*this);
     vertices_pair verticesPair = {vertex1, vertex2};
     if (!temp.vertices_->has(vertex1) || !temp.vertices_->has(vertex2)) {
-      throw std::runtime_error("Vertex not found");
+      throw std::logic_error("Vertex not found");
     }
     if (!temp.links_.get(verticesPair).has(weight)) {
-      throw std::runtime_error("Link not found");
+      throw std::logic_error("Link not found");
     }
     temp.links_.get(verticesPair).erase(temp.links_.get(verticesPair).find(weight));
     temp.links_count_--;
@@ -146,7 +146,7 @@ namespace hachaturyanov
     swap_(temp);
   }
 
-  Graph::Graph(size_t vertices_count, List< std::string >* vertices):
+  Graph::Graph(size_t vertices_count, const List< std::string >* vertices):
    links_(),
    vertices_(new List< std::string >()),
    links_count_(0),
@@ -171,50 +171,48 @@ namespace hachaturyanov
           vertices_->insertSorted(vertex1);
           vertices_count_++;
         }
-        oneway_links_list* links = graph2.getLinks(vertex1, true);
-        auto linksIt = links->begin();
+        oneway_links_list links = graph2.getLinks(vertex1, true);
+        auto linksIt = links.begin();
         do {
           std::string vertex2 = linksIt->first;
-          List< size_t >* weights = linksIt->second;
-          auto weightsIt = weights->begin();
+          List< size_t > weights = linksIt->second;
+          auto weightsIt = weights.begin();
           do {
             size_t weight = *weightsIt;
             bind(vertex1, vertex2, weight);
             ++weightsIt;
-          } while (weightsIt != weights->begin());
+          } while (weightsIt != weights.begin());
           ++linksIt;
-        } while (linksIt != links->begin());
+        } while (linksIt != links.begin());
         ++it;
-        links->clear();
       } while (it != start);
     }
   }
 
-  Graph::Graph(const Graph &other, size_t vertices_count, List< std::string >* vertices):
+  Graph::Graph(const Graph &other, size_t vertices_count, const List< std::string >* vertices):
    Graph(vertices_count, vertices)
   {
     auto it = vertices_->begin();
     do {
       std::string vertex1 = *it;
       if (other.vertices_->has(vertex1)) {
-        oneway_links_list* links = other.getLinks(vertex1, true);
-        auto linksIt = links->begin();
+        oneway_links_list links = other.getLinks(vertex1, true);
+        auto linksIt = links.begin();
         do {
           std::string vertex2 = linksIt->first;
           if (vertices_->has(vertex2)) {
-            List< size_t >* weights = linksIt->second;
-            auto weightsIt = weights->begin();
+            List< size_t > weights = linksIt->second;
+            auto weightsIt = weights.begin();
             do {
               size_t weight = *weightsIt;
               bind(vertex1, vertex2, weight);
               ++weightsIt;
-            } while (weightsIt != weights->begin());
+            } while (weightsIt != weights.begin());
           }
           ++linksIt;
-        } while (linksIt != links->begin());
-        delete links;
+        } while (linksIt != links.begin());
       } else {
-        throw std::runtime_error("Vertex not found");
+        throw std::logic_error("Vertex not found");
       }
       ++it;
     } while (it != vertices_->begin());

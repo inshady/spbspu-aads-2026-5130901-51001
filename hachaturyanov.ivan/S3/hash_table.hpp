@@ -71,11 +71,12 @@ namespace hachaturyanov
     size_t capacity() const;
     bool empty() const;
     void clear();
-    Value & get(const Key &key) const;
+    const Value & get(const Key &key) const;
+    Value & get(const Key &key);
 
     Value & operator[](const Key &key);
 
-    List< Key >* keys() const;
+    List< Key > keys() const;
 
     HashTable(const HashTable &other);
     HashTable(HashTable &&other) noexcept;
@@ -93,12 +94,12 @@ namespace hachaturyanov
   };
 
   template< class Key, class Value, class Hash, class Equal >
-  List< Key >* HashTable< Key, Value, Hash, Equal >::keys() const
+  List< Key > HashTable< Key, Value, Hash, Equal >::keys() const
   {
-    List< Key >* result = new List< Key >();
+    List< Key > result;
     for (size_t i = 0; i < capacity_; i++) {
       if (data_[i].state == OCCUPIED) {
-        result->insertSorted(data_[i].key);
+        result.insertSorted(data_[i].key);
       }
     }
     return result;
@@ -115,7 +116,17 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Hash, class Equal >
-  Value & HashTable< Key, Value, Hash, Equal >::get(const Key &key) const
+  const Value & HashTable< Key, Value, Hash, Equal >::get(const Key &key) const
+  {
+    size_t id = findIndex_(key);
+    if (id == capacity_ || data_[id].state != OCCUPIED) {
+      throw std::runtime_error("Key not found");
+    }
+    return data_[id].value;
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  Value & HashTable< Key, Value, Hash, Equal >::get(const Key &key)
   {
     size_t id = findIndex_(key);
     if (id == capacity_ || data_[id].state != OCCUPIED) {

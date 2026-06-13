@@ -2,7 +2,7 @@
 
 int main()
 {
-  hachaturyanov::GraphTable graphs(17);
+  hachaturyanov::GraphTable graphs;
 
   hachaturyanov::cmdGraphs(graphs, std::cout);
 }
