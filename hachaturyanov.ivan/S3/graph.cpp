@@ -146,7 +146,11 @@ namespace hachaturyanov
     if (!temp.links_.has(verticesPair) || !temp.links_.get(verticesPair).has(weight)) {
       throw std::logic_error("Link not found");
     }
-    temp.links_.get(verticesPair).erase(temp.links_.get(verticesPair).find(weight));
+    List< size_t  > &weights = temp.links_.get(verticesPair);
+    weights.erase(weights.find(weight));
+    if (weights.isEmpty()) {
+      temp.links_.drop(verticesPair);
+    }
     temp.links_count_--;
 
     swap_(temp);
@@ -185,12 +189,14 @@ namespace hachaturyanov
           do {
             std::string vertex2 = linksIt->first;
             List< size_t > weights = linksIt->second;
-            auto weightsIt = weights.begin();
-            do {
-              size_t weight = *weightsIt;
-              bind(vertex1, vertex2, weight);
-              ++weightsIt;
-            } while (weightsIt != weights.begin());
+            if (!weights.isEmpty()) {
+              auto weightsIt = weights.begin();
+              do {
+                size_t weight = *weightsIt;
+                bind(vertex1, vertex2, weight);
+                ++weightsIt;
+              } while (weightsIt != weights.begin());
+            }
             ++linksIt;
           } while (linksIt != links.begin());
         }

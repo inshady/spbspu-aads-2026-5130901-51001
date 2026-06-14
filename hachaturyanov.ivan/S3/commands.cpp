@@ -41,6 +41,8 @@ namespace hachaturyanov
         out << *it << '\n';
         ++it;
       } while (it != graphNames.begin());
+    } else {
+      out << '\n';
     }
   }
 
@@ -54,6 +56,8 @@ namespace hachaturyanov
           out << *it << '\n';
           ++it;
         } while (it != vertexes->begin());
+      } else {
+        out << '\n';
       }
     } else {
       out << "<INVALID COMMAND>" << '\n';
@@ -87,6 +91,8 @@ namespace hachaturyanov
             }
             ++it;
           } while (it != links.begin());
+        } else {
+          out << '\n';
         }
       } else {
         out << "<INVALID COMMAND>" << '\n';
@@ -139,7 +145,12 @@ namespace hachaturyanov
   {
     if (!graphs.has(newgraph)) {
       if (graphs.has(graph1) && graphs.has(graph2)) {
-        graphs[newgraph] = Graph(graphs[graph1], graphs[graph2]);
+        Graph g1 = graphs.get(graph1);
+        Graph g2 = graphs.get(graph2);
+        if (graphs.size() * 2 > graphs.capacity()) {
+          graphs.rehash(graphs.capacity() * 2);
+        }
+        graphs[newgraph] = Graph(g1, g2);
       } else {
         out << "<INVALID COMMAND>" << '\n';
       }
@@ -155,6 +166,9 @@ namespace hachaturyanov
       if (graphs.has(oldgraph)) {
         try {
           Graph g(graphs[oldgraph], n, &vertices);
+          if (graphs.size() * 2 > graphs.capacity()) {
+            graphs.rehash(graphs.capacity() * 2);
+          }
           graphs[newgraph] = std::move(g);
         } catch (std::logic_error &) {
           out << "<INVALID COMMAND>" << '\n';
@@ -269,6 +283,10 @@ namespace hachaturyanov
           ++it;
           std::string oldGraph = *it;
           ++it;
+          if (!isdigit(*it)) {
+            out << "<INVALID COMMAND>" << '\n';
+            continue;
+          }
           size_t n = stoi(*it);
           List< std::string > vertices;
           for (size_t i = 0; i < n; i++) {

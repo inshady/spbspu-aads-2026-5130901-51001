@@ -11,6 +11,7 @@ int main(int argc, char** argv)
   std::ifstream file(argv[1]);
   if (!file.is_open()) {
     std::cerr << "Cannot open file" << '\n';
+    return 1;
   }
 
   hachaturyanov::GraphTable graphs;
