@@ -125,8 +125,6 @@ namespace hachaturyanov
     pos.node_->next_ = newNode;
     if (pos.node_ == head_->prev_) {
       head_->prev_ = newNode;
-    } else if (isEmpty()) {
-      head_ = newNode;
     }
     size_++;
     return iter(newNode);
@@ -140,10 +138,6 @@ namespace hachaturyanov
     pos.node_->prev_->next_ = newNode;
     pos.node_->prev_ = newNode;
     if (pos.node_ == head_) {
-      head_ = newNode;
-    } else if (pos.node_ == head_->prev_) {
-      head_->prev_ = newNode;
-    } else if (isEmpty()) {
       head_ = newNode;
     }
     size_++;
