@@ -230,10 +230,6 @@ namespace hachaturyanov
           size_t weight = stoi(*it);
           cmdCut(graphs, graphName, vertex1, vertex2, weight, out);
         } else if (*it == "create") {
-          if (strs.size() != 4 || strs.size() != 2 || strs.size() != 3) {
-            out << "<INVALID COMMAND>" << '\n';
-            continue;
-          }
           ++it;
           std::string graphName = *it;
           if (strs.size() > 2) {
@@ -268,10 +264,6 @@ namespace hachaturyanov
           std::string oldGraph2 = *it;
           cmdMerge(graphs, newGraph, oldGraph1, oldGraph2, out);
         } else if (*it == "extract") {
-          if (strs.size() != 5) {
-            out << "<INVALID COMMAND>" << '\n';
-            continue;
-          }
           ++it;
           std::string newGraph = *it;
           ++it;
