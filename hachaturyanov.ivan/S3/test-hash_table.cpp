@@ -2,7 +2,7 @@
 #include <boost/hash2/xxhash.hpp>
 #include <string>
 
-#include "hash_table.hpp"
+#include "../common/hash_table.hpp"
 #include "xxhash.hpp"
 
 struct CollisionHash {

@@ -1,7 +1,7 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
-#include "hash_table.hpp"
+#include "../common/hash_table.hpp"
 #include "xxhash.hpp"
 #include "../common/list.hpp"
 
