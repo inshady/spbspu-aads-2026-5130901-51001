@@ -2,6 +2,7 @@
 #define BSTREE_HPP
 
 #include <utility>
+#include <functional>
 
 namespace hachaturyanov
 {
@@ -56,6 +57,48 @@ namespace hachaturyanov
 
     bool operator==(const BSTIterator &other) const;
     bool operator!=(const BSTIterator &other) const;
+  };
+
+  template< class Key, class Value, class Compare > class BSTree {
+    using Node = BSTNode< Key, Value >;
+
+    Node* root_;
+    Node* fake_;
+
+    Node* makeNode(const Key &key, const Value &value);
+    Node* makeFake();
+    size_t height_(Node* n) const;
+
+   public:
+    using iterator = BSTIterator< Key, Value >;
+    using const_iterator = BSTConstIterator< Key, Value >;
+
+    BSTree();
+    ~BSTree();
+
+    iterator begin();
+    iterator end();
+    const_iterator begin() const;
+    const_iterator end() const;
+    const_iterator cbegin() const;
+    const_iterator cend() const;
+
+    bool isEmpty() const;
+
+    void push(const Key &key, const Value &value);
+    Value get(const Key &key) const;
+    Value drop(const Key &key);
+
+    const_iterator rotateLeft(const_iterator it);
+    const_iterator rotateRight(const_iterator it);
+
+    const_iterator rotateLargeLeft(const_iterator it);
+    const_iterator rotateLargeRight(const_iterator it);
+
+    size_t height(const_iterator it) const;
+    size_t height() const;
+
+    void clear();
   };
 
   template< class Key, class Value >
