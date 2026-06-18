@@ -13,15 +13,18 @@ namespace hachaturyanov
   };
 
   template< class Key, class Value, class Compare > class BSTree;
+  template< class Key, class Value > class BSTIterator;
 
   template< class Key, class Value > class BSTConstIterator {
     using Node = BSTNode< Key, Value >;
     template< class K, class V, class C > friend class BSTree;
+    friend class BSTIterator< Key, Value >;
 
     Node* node_;
     Node* fake_;
 
     BSTConstIterator(Node* node, Node* fake);
+
    public:
     using value_type = std::pair< const Key, Value >;
 
@@ -31,7 +34,78 @@ namespace hachaturyanov
 
     bool operator==(const BSTConstIterator &other) const;
     bool operator!=(const BSTConstIterator &other) const;
+
+    BSTConstIterator(const BSTIterator< Key, Value > &other);
   };
+
+  template< class Key, class Value > class BSTIterator {
+    using Node = BSTNode< Key, Value >;
+    template< class K, class V, class C > friend class BSTree;
+
+    Node* node_;
+    Node* fake_;
+
+    BSTIterator(Node* node, Node* fake);
+
+   public:
+    using value_type = std::pair< const Key, Value >;
+
+    value_type & operator*() const;
+    value_type* operator->() const;
+    BSTIterator & operator++();
+
+    bool operator==(const BSTIterator &other) const;
+    bool operator!=(const BSTIterator &other) const;
+  };
+
+  template< class Key, class Value >
+  bool BSTIterator< Key, Value >::operator!=(const BSTIterator &other) const
+  {
+    return node_ != other.node_;
+  }
+
+  template< class Key, class Value >
+  bool BSTIterator< Key, Value >::operator==(const BSTIterator &other) const
+  {
+    return node_ == other.node_;
+  }
+
+  template< class Key, class Value >
+  BSTIterator< Key, Value > & BSTIterator< Key, Value >::operator++()
+  {
+    if (node_->right != fake_) {
+      node_ = node_->right;
+      while (node_->left != fake_) {
+        node_ = node_->left;
+      }
+    } else {
+      Node* par = node_->parent;
+      while (par != nullptr && node_ == par->right) {
+        node_ = par;
+        par = par->parent;
+      }
+      node_ = par;
+    }
+    return *this;
+  }
+
+  template< class Key, class Value >
+  typename BSTIterator< Key, Value >::value_type* BSTIterator< Key, Value >::operator->() const
+  {
+    return &node_->data;
+  }
+
+  template< class Key, class Value >
+  typename BSTIterator< Key, Value >::value_type & BSTIterator< Key, Value >::operator*() const
+  {
+    return node_->data;
+  }
+
+  template< class Key, class Value >
+  BSTIterator< Key, Value >::BSTIterator(Node* node, Node* fake):
+   node_(node),
+   fake_(fake)
+  {}
 
   template< class Key, class Value >
   bool BSTConstIterator< Key, Value >::operator!=(const BSTConstIterator & other) const
