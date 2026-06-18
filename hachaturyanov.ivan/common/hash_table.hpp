@@ -132,6 +132,36 @@ namespace hachaturyanov
     size_t capacity_;
   };
 
+  template< class Key, class Value >
+  HTIter< Key, Value >::HTIter(Slot< Key, Value >* data, size_t index, size_t capacity):
+   data_(data),
+   index_(index),
+   capacity_(capacity)
+  {}
+
+  template< class Key, class Value >
+  bool HTIter< Key, Value >::operator!=(const HTIter &other) const {
+    return !(*this == other);
+  }
+
+  template< class Key, class Value >
+  bool HTIter< Key, Value >::operator==(const HTIter &other) const {
+    return index_ == other.index_;
+  }
+
+  template< class Key, class Value >
+  HTIter< Key, Value >::value_type HTIter< Key, Value >::operator*() {
+    return { data_[index_].key, data_[index_].value };
+  }
+
+  template< class Key, class Value >
+  HTIter< Key, Value > & HTIter< Key, Value >::operator++() {
+    do {
+      index_++;
+    } while (index_ < capacity_ && data_[index_].state != OCCUPIED);
+    return *this;
+  }
+
   template< class Key, class Value, class Hash, class Equal >
   List< Key > HashTable< Key, Value, Hash, Equal >::keys() const
   {
