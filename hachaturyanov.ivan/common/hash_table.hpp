@@ -126,6 +126,7 @@ namespace hachaturyanov
 
   template< class Key, class Value > class HTCIter {
     template< class K, class V, class H, class E > friend class HashTable;
+    friend class HTIter< Key, Value >;
    public:
     using value_type = std::pair< const Key &, const Value & >;
 
