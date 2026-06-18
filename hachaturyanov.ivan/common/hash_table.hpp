@@ -55,8 +55,13 @@ namespace hachaturyanov
     State state = EMPTY;
   };
 
+  template< class Key, class Value > class HTIter;
+  template< class Key, class Value > class HTCIter;
+
   template< class Key, class Value, class Hash, class Equal >
   class HashTable {
+    friend class HTIter< Key, Value >;
+    friend class HTCIter< Key, Value >;
    public:
     HashTable();
     HashTable(size_t slots);
@@ -78,6 +83,13 @@ namespace hachaturyanov
 
     List< Key > keys() const;
 
+    HTIter< Key, Value > begin();
+    HTIter< Key, Value > end();
+    HTCIter< Key, Value > begin() const;
+    HTCIter< Key, Value > end() const;
+    HTCIter< Key, Value > cbegin() const;
+    HTCIter< Key, Value > cend() const;
+
     HashTable(const HashTable &other);
     HashTable(HashTable &&other) noexcept;
     HashTable &operator=(const HashTable &other);
@@ -94,7 +106,7 @@ namespace hachaturyanov
   };
 
   template< class Key, class Value > class HTIter {
-    friend class HashTable< Key, Value, Hash, Equal >;
+    template< class K, class V, class H, class E > friend class HashTable;
    public:
     using value_type = std::pair< const Key &, Value & >;
 
@@ -113,7 +125,7 @@ namespace hachaturyanov
   };
 
   template< class Key, class Value > class HTCIter {
-    friend class HashTable< Key, Value, Hash, Equal >;
+    template< class K, class V, class H, class E > friend class HashTable;
    public:
     using value_type = std::pair< const Key &, const Value & >;
 
@@ -131,6 +143,44 @@ namespace hachaturyanov
     size_t index_;
     size_t capacity_;
   };
+
+  template< class Key, class Value, class Hash, class Equal >
+  HTCIter< Key, Value > HashTable< Key, Value, Hash, Equal >::cend() const {
+    return end();
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  HTCIter< Key, Value > HashTable< Key, Value, Hash, Equal >::cbegin() const {
+    return begin();
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  HTCIter< Key, Value > HashTable< Key, Value, Hash, Equal >::end() const {
+    return HTCIter< Key, Value >(data_, capacity_, capacity_);
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  HTCIter< Key, Value > HashTable< Key, Value, Hash, Equal >::begin() const {
+    size_t i = 0;
+    while(i < capacity_ && data_[i].state != OCCUPIED) {
+      i++;
+    }
+    return HTCIter< Key, Value >(data_, i, capacity_);
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  HTIter< Key, Value > HashTable< Key, Value, Hash, Equal >::end() {
+    return HTIter< Key, Value >(data_, capacity_, capacity_);
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  HTIter< Key, Value > HashTable< Key, Value, Hash, Equal >::begin() {
+    size_t i = 0;
+    while(i < capacity_ && data_[i].state != OCCUPIED) {
+      i++;
+    }
+    return HTIter< Key, Value >(data_, i, capacity_);
+  }
 
   template< class Key, class Value >
   HTCIter< Key, Value >::HTCIter(const Slot< Key, Value >* data, size_t index, size_t capacity):
@@ -157,7 +207,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value >
-  HTCIter< Key, Value >::value_type HTCIter< Key, Value >::operator*() const {
+  typename HTCIter< Key, Value >::value_type HTCIter< Key, Value >::operator*() const {
     return { data_[index_].key, data_[index_].value };
   }
 
@@ -187,7 +237,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value >
-  HTIter< Key, Value >::value_type HTIter< Key, Value >::operator*() {
+  typename HTIter< Key, Value >::value_type HTIter< Key, Value >::operator*() {
     return { data_[index_].key, data_[index_].value };
   }
 
