@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <functional>
+#include <cstddef>
 
 namespace hachaturyanov
 {
@@ -100,6 +101,96 @@ namespace hachaturyanov
 
     void clear();
   };
+
+  template< class Key, class Value, class Compare >
+  bool BSTree< Key, Value, Compare >::isEmpty() const
+  {
+    return root_ == fake_;
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::const_iterator
+      BSTree< Key, Value, Compare >::cend() const
+  {
+    return end();
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::const_iterator
+      BSTree< Key, Value, Compare >::cbegin() const
+  {
+    return begin();
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::const_iterator
+      BSTree< Key, Value, Compare >::end() const
+  {
+    return const_iterator(fake_, fake_);
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::const_iterator
+      BSTree< Key, Value, Compare >::begin() const
+  {
+    Node* cur = root_;
+    while (cur->left != fake_) {
+      cur = cur->left;
+    }
+    return const_iterator(cur, fake_);
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::iterator BSTree< Key, Value, Compare >::end()
+  {
+    return iterator(fake_, fake_);
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTree< Key, Value, Compare >::iterator BSTree< Key, Value, Compare >::begin()
+  {
+    Node* cur = root_;
+    while (cur->left != fake_) {
+      cur = cur->left;
+    }
+    return iterator(cur, fake_);
+  }
+
+  template< class Key, class Value, class Compare > BSTree< Key, Value, Compare >::~BSTree()
+  {
+    clear();
+    ::operator delete(fake_);
+  }
+
+  template< class Key, class Value, class Compare > BSTree< Key, Value, Compare >::BSTree():
+   root_(fake_),
+   fake_(makeFake())
+  {}
+
+  template< class Key, class Value, class Compare >
+  size_t BSTree< Key, Value, Compare >::height_(Node* n) const
+  {
+    if (n == fake_) {
+      return 0;
+    }
+    return 1 + std::max(height_(n->left), height_(n->right));
+  }
+
+  template< class Key, class Value, class Compare >
+  BSTNode< Key, Value >* BSTree< Key, Value, Compare >::makeFake()
+  {
+    Node* fake = static_cast< Node* >(::operator new(sizeof(Node)));
+    fake->left = fake;
+    fake->right = fake;
+    fake->parent = fake;
+    return fake;
+  }
+
+  template< class Key, class Value, class Compare >
+  BSTNode< Key, Value >* BSTree< Key, Value, Compare >::makeNode(const Key &key, const Value &value)
+  {
+    return new Node{ { key, value }, fake_, fake_, fake_ };
+  }
 
   template< class Key, class Value >
   bool BSTIterator< Key, Value >::operator!=(const BSTIterator &other) const
