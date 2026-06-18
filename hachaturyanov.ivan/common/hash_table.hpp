@@ -93,6 +93,45 @@ namespace hachaturyanov
     size_t findIndex_(const Key &key) const;
   };
 
+  template< class Key, class Value > class HTIter {
+    friend class HashTable< Key, Value, Hash, Equal >;
+   public:
+    using value_type = std::pair< const Key &, Value & >;
+
+    HTIter & operator++();
+    value_type operator*();
+    bool operator==(const HTIter &other) const;
+    bool operator!=(const HTIter &other) const;
+
+   private:
+    HTIter(Slot< Key, Value >* data, size_t index, size_t capacity);
+
+    Slot< Key, Value >* data_;
+    size_t index_;
+    size_t capacity_;
+
+  };
+
+  template< class Key, class Value > class HTCIter {
+    friend class HashTable< Key, Value, Hash, Equal >;
+   public:
+    using value_type = std::pair< const Key &, const Value & >;
+
+    HTCIter & operator++();
+    value_type operator*() const;
+    bool operator==(const HTCIter &other) const;
+    bool operator!=(const HTCIter &other) const;
+
+    HTCIter(const HTIter< Key, Value > &other);
+
+   private:
+    HTCIter(const Slot< Key, Value >* data, size_t index, size_t capacity);
+
+    const Slot< Key, Value >* data_;
+    size_t index_;
+    size_t capacity_;
+  };
+
   template< class Key, class Value, class Hash, class Equal >
   List< Key > HashTable< Key, Value, Hash, Equal >::keys() const
   {
@@ -326,4 +365,5 @@ namespace hachaturyanov
   }
 
 }
+
 #endif
