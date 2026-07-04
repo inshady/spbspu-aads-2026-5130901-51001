@@ -103,6 +103,42 @@ namespace hachaturyanov
   };
 
   template< class Key, class Value, class Compare >
+  void BSTree< Key, Value, Compare >::push(const Key &key, const Value &value)
+  {
+    Node* newNode = makeNode(key, value);
+    if (root_ == nullptr) {
+      root_ = newNode;
+      return;
+    }
+    Node* cur = root_;
+    Compare cmp;
+    bool added = false;
+    while (!added) {
+      if (cmp(key, cur->data.first)) {
+        if (cur->left == fake_) {
+          cur->left = newNode;
+          newNode->parent = cur;
+          added = true;
+        } else {
+          cur = cur->left;
+        }
+      } else if (cmp(cur->data.first, key)) {
+        if (cur->right == fake_) {
+          cur->right = newNode;
+          newNode->parent = cur;
+          added = true;
+        } else {
+          cur = cur->right;
+        }
+      } else {
+        delete newNode;
+        cur->data.second = value;
+        added = true;
+      }
+    }
+  }
+
+  template< class Key, class Value, class Compare >
   bool BSTree< Key, Value, Compare >::isEmpty() const
   {
     return root_ == fake_;
@@ -189,7 +225,7 @@ namespace hachaturyanov
   template< class Key, class Value, class Compare >
   BSTNode< Key, Value >* BSTree< Key, Value, Compare >::makeNode(const Key &key, const Value &value)
   {
-    return new Node{ { key, value }, fake_, fake_, fake_ };
+    return new Node{ { key, value }, fake_, fake_, nullptr };
   }
 
   template< class Key, class Value >
