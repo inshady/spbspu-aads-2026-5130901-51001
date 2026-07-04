@@ -4,6 +4,7 @@
 #include <utility>
 #include <functional>
 #include <cstddef>
+#include <exception>
 
 namespace hachaturyanov
 {
@@ -87,7 +88,8 @@ namespace hachaturyanov
     bool isEmpty() const;
 
     void push(const Key &key, const Value &value);
-    Value get(const Key &key) const;
+    Value & get(const Key &key);
+    const Value & get(const Key &key) const;
     Value drop(const Key &key);
 
     const_iterator rotateLeft(const_iterator it);
@@ -101,6 +103,39 @@ namespace hachaturyanov
 
     void clear();
   };
+
+  template< class Key, class Value, class Compare >
+  const Value & BSTree< Key, Value, Compare >::get(const Key &key) const
+  {
+    return const_cast< BSTree* >(this)->get(key);
+  }
+
+  template< class Key, class Value, class Compare >
+  Value & BSTree< Key, Value, Compare >::get(const Key &key)
+  {
+    if (root_ == nullptr) {
+      throw std::logic_error("Key not found");
+    }
+    Node* cur = root_;
+    Compare cmp;
+    while (true) {
+      if (cmp(key, cur->data.first)) {
+        if (cur->left != fake_) {
+          cur = cur->left;
+        } else {
+          throw std::logic_error("Key not found");
+        }
+      } else if (cmp(cur->data.first, key)) {
+        if (cur->right != fake_) {
+          cur = cur->right;
+        } else {
+          throw std::logic_error("Key not found");
+        }
+      } else {
+        return cur->data.second;
+      }
+    }
+  }
 
   template< class Key, class Value, class Compare >
   void BSTree< Key, Value, Compare >::push(const Key &key, const Value &value)
