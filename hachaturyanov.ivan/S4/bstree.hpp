@@ -105,6 +105,12 @@ namespace hachaturyanov
   };
 
   template< class Key, class Value, class Compare >
+  BSTConstIterator< Key, Value > BSTree< Key, Value, Compare >::rotateLeft(const_iterator it)
+  {
+    
+  }
+
+  template< class Key, class Value, class Compare >
   void BSTree< Key, Value, Compare >::drop(const Key &key)
   {
     if (root_ == nullptr) {
@@ -116,13 +122,13 @@ namespace hachaturyanov
     while (cur != fake_) {
       if (cmp(key, cur->data.first)) {
         cur = cur->left;
-      } else if (cmp(cut->fata.first, key)) {
+      } else if (cmp(cut->data.first, key)) {
         cur = cur->right;
       } else {
         break;
       }
     }
-    if (cur == fake) {
+    if (cur == fake_) {
       throw std::logic_error("Key not found");
     }
     if (cur->left != fake_ && cur->right != fake_) {
@@ -133,22 +139,56 @@ namespace hachaturyanov
       Node* succChild = successor->right;
       if (successor->parent != cur) {
         successor->parent->left = succChild;
+        if (succChild != fake_) {
+          succChild->parent = successor->parent;
+        }
+        successor->right = cur->right;
+        cur->right->parent = successor;
       }
-      successor->right = cur->right;
-      cur->right->parent = successor;
+
+      successor->left = cur->left;
+      cur->left->parent = successor;
+      successor->parent = cur->parent;
+
+      if (cur == root_) {
+        root_ = successor;
+      } else {
+        if (cur->parent->left == cur) {
+          cur->parent->left = successor;
+        } else {
+          cur->parent->right = successor;
+        }
+      }
+
+      delete cur;
+      return;
     }
 
-    successor->left = cur->left;
-    cur->left->parent = successor;
-    successor->parent = cur->parent;
+    Node* child = nullptr;
+    if (cur->left != fake_) {
+      child = cur->left;
+    } else {
+      child = cur->right;
+    }
 
     if (cur == root_) {
-      root_ = successor;
-    } else {
-      if (cur->parent->left == cur) {
-        cur->parent->left = successor;
+      if (child == fake_) {
+        root_ = nullptr;
       } else {
-        cur->parent->right = successor;
+        root_ = child;
+      }
+      if (root_ != nullptr) {
+        root_->parent = nullptr;
+      }
+    } else {
+      Node* parent = cur->parent;
+      if (parent->left == cur) {
+        parent->left = child;
+      } else {
+        parent->right = child;
+      }
+      if (child != fake_) {
+        child->parent = parent;
       }
     }
 
@@ -285,7 +325,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Compare > BSTree< Key, Value, Compare >::BSTree():
-   root_(fake_),
+   root_(nullptr),
    fake_(makeFake())
   {}
 
