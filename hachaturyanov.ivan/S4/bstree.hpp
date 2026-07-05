@@ -90,7 +90,7 @@ namespace hachaturyanov
     void push(const Key &key, const Value &value);
     Value & get(const Key &key);
     const Value & get(const Key &key) const;
-    Value drop(const Key &key);
+    void drop(const Key &key);
 
     const_iterator rotateLeft(const_iterator it);
     const_iterator rotateRight(const_iterator it);
@@ -103,6 +103,57 @@ namespace hachaturyanov
 
     void clear();
   };
+
+  template< class Key, class Value, class Compare >
+  void BSTree< Key, Value, Compare >::drop(const Key &key)
+  {
+    if (root_ == nullptr) {
+      throw std::logic_error("Key not found");
+    }
+
+    Node* cur = root_;
+    Compare cmp;
+    while (cur != fake_) {
+      if (cmp(key, cur->data.first)) {
+        cur = cur->left;
+      } else if (cmp(cut->fata.first, key)) {
+        cur = cur->right;
+      } else {
+        break;
+      }
+    }
+    if (cur == fake) {
+      throw std::logic_error("Key not found");
+    }
+    if (cur->left != fake_ && cur->right != fake_) {
+      Node* successor = cur->right;
+      while (successor->left != fake_) {
+        successor = successor->left;
+      }
+      Node* succChild = successor->right;
+      if (successor->parent != cur) {
+        successor->parent->left = succChild;
+      }
+      successor->right = cur->right;
+      cur->right->parent = successor;
+    }
+
+    successor->left = cur->left;
+    cur->left->parent = successor;
+    successor->parent = cur->parent;
+
+    if (cur == root_) {
+      root_ = successor;
+    } else {
+      if (cur->parent->left == cur) {
+        cur->parent->left = successor;
+      } else {
+        cur->parent->right = successor;
+      }
+    }
+
+    delete cur;
+  }
 
   template< class Key, class Value, class Compare >
   const Value & BSTree< Key, Value, Compare >::get(const Key &key) const
