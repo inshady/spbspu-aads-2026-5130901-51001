@@ -105,6 +105,12 @@ namespace hachaturyanov
     void clear();
   };
 
+  template< class Key, class Value >
+  BSTConstIterator< Key, Value >::BSTConstIterator(const BSTIterator< Key, Value > &other):
+   node_(other.node_),
+   fake_(other.fake_)
+  {}
+
   template< class Key, class Value, class Compare >
   void BSTree< Key, Value, Compare >::clear()
   {
