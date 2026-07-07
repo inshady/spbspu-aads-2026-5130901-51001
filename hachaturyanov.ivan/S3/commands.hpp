@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "graph.hpp"
-#include "io_utils.hpp"
+#include "../common/io_utils.hpp"
 
 namespace hachaturyanov
 {
