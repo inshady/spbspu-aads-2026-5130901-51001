@@ -21,7 +21,6 @@ namespace hachaturyanov
   template< class Key, class Value > class BSTConstIterator {
     using Node = BSTNode< Key, Value >;
     template< class K, class V, class C > friend class BSTree;
-    friend class BSTIterator< Key, Value >;
 
     Node* node_;
     Node* fake_;
@@ -44,6 +43,7 @@ namespace hachaturyanov
   template< class Key, class Value > class BSTIterator {
     using Node = BSTNode< Key, Value >;
     template< class K, class V, class C > friend class BSTree;
+    friend class BSTConstIterator< Key, Value >;
 
     Node* node_;
     Node* fake_;
@@ -114,7 +114,7 @@ namespace hachaturyanov
   template< class Key, class Value, class Compare >
   void BSTree< Key, Value, Compare >::clear()
   {
-    clear(root_);
+    clear_(root_);
     root_ = nullptr;
   }
 
@@ -142,7 +142,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Compare >
-  typename BSTConstIterator< Key, Value > BSTree< Key, Value, Compare >::rotateLargeRight(const_iterator it)
+  typename BSTree< Key, Value, Compare >::const_iterator BSTree< Key, Value, Compare >::rotateLargeRight(const_iterator it)
   {
     Node* X = it.node_;
     rotateLeft(const_iterator(X, fake_));
@@ -150,7 +150,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Compare >
-  typename BSTConstIterator< Key, Value > BSTree< Key, Value, Compare >::rotateLargeLeft(const_iterator it)
+  typename BSTree< Key, Value, Compare >::const_iterator BSTree< Key, Value, Compare >::rotateLargeLeft(const_iterator it)
   {
     Node* X = it.node_;
     rotateRight(const_iterator(X, fake_));
@@ -158,7 +158,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Compare >
-  typename BSTConstIterator< Key, Value > BSTree< Key, Value, Compare >::rotateRight(const_iterator it)
+  typename BSTree< Key, Value, Compare >::const_iterator BSTree< Key, Value, Compare >::rotateRight(const_iterator it)
   {
     Node* X = it.node_;
     Node* Y = X->parent;
@@ -170,7 +170,7 @@ namespace hachaturyanov
     }
 
     X->parent = Y->parent;
-    if (Y->parent == nullptr) {
+    if (Y->parent == fake_) {
       root_ = X;
     } else if (Y == Y->parent->right) {
       Y->parent->right = X;
@@ -185,7 +185,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Compare >
-  typename BSTConstIterator< Key, Value > BSTree< Key, Value, Compare >::rotateLeft(const_iterator it)
+  typename BSTree< Key, Value, Compare >::const_iterator BSTree< Key, Value, Compare >::rotateLeft(const_iterator it)
   {
     Node* X = it.node_;
     Node* Y = X->parent;
@@ -197,7 +197,7 @@ namespace hachaturyanov
     }
 
     X->parent = Y->parent;
-    if (Y->parent == nullptr) {
+    if (Y->parent == fake_) {
       root_ = X;
     } else if (Y == Y->parent->left) {
       Y->parent->left = X;
@@ -279,7 +279,7 @@ namespace hachaturyanov
         root_ = child;
       }
       if (root_ != nullptr) {
-        root_->parent = nullptr;
+        root_->parent = fake_;
       }
     } else {
       Node* parent = cur->parent;
@@ -335,6 +335,7 @@ namespace hachaturyanov
     Node* newNode = makeNode(key, value);
     if (root_ == nullptr) {
       root_ = newNode;
+      root_->parent = fake_;
       return;
     }
     Node* cur = root_;
@@ -415,6 +416,9 @@ namespace hachaturyanov
   template< class Key, class Value, class Compare >
   typename BSTree< Key, Value, Compare >::iterator BSTree< Key, Value, Compare >::begin()
   {
+    if (root_ == nullptr) {
+      return end();
+    }
     Node* cur = root_;
     while (cur->left != fake_) {
       cur = cur->left;
