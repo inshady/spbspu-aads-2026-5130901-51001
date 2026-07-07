@@ -2,7 +2,7 @@
 #define IO_UTILS_HPP
 
 #include <iostream>
-#include "../common/list.hpp"
+#include "list.hpp"
 
 namespace hachaturyanov
 {
