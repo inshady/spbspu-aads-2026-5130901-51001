@@ -105,6 +105,22 @@ namespace hachaturyanov
   };
 
   template< class Key, class Value, class Compare >
+  typename BSTConstIterator< Key, Value > BSTree< Key, Value, Compare >::rotateLargeRight(const_iterator it)
+  {
+    Node* X = it.node_;
+    rotateLeft(const_iterator(X, fake_));
+    return rotateRight(const_iterator(X, fake_));
+  }
+
+  template< class Key, class Value, class Compare >
+  typename BSTConstIterator< Key, Value > BSTree< Key, Value, Compare >::rotateLargeLeft(const_iterator it)
+  {
+    Node* X = it.node_;
+    rotateRight(const_iterator(X, fake_));
+    return rotateLeft(const_iterator(X, fake_));
+  }
+
+  template< class Key, class Value, class Compare >
   typename BSTConstIterator< Key, Value > BSTree< Key, Value, Compare >::rotateRight(const_iterator it)
   {
     Node* X = it.node_;
@@ -170,7 +186,7 @@ namespace hachaturyanov
     while (cur != fake_) {
       if (cmp(key, cur->data.first)) {
         cur = cur->left;
-      } else if (cmp(cut->data.first, key)) {
+      } else if (cmp(cur->data.first, key)) {
         cur = cur->right;
       } else {
         break;
@@ -315,7 +331,7 @@ namespace hachaturyanov
   template< class Key, class Value, class Compare >
   bool BSTree< Key, Value, Compare >::isEmpty() const
   {
-    return root_ == fake_;
+    return root_ == nullptr;
   }
 
   template< class Key, class Value, class Compare >
@@ -343,6 +359,9 @@ namespace hachaturyanov
   typename BSTree< Key, Value, Compare >::const_iterator
       BSTree< Key, Value, Compare >::begin() const
   {
+    if (root_ == nullptr) {
+      return end();
+    }
     Node* cur = root_;
     while (cur->left != fake_) {
       cur = cur->left;
@@ -424,7 +443,7 @@ namespace hachaturyanov
       }
     } else {
       Node* par = node_->parent;
-      while (par != nullptr && node_ == par->right) {
+      while (par != fake_ && node_ == par->right) {
         node_ = par;
         par = par->parent;
       }
@@ -473,7 +492,7 @@ namespace hachaturyanov
       }
     } else {
       Node* par = node_->parent;
-      while (par != nullptr && node_ == par->right) {
+      while (par != fake_ && node_ == par->right) {
         node_ = par;
         par = par->parent;
       }
