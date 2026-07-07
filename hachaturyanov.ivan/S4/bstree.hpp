@@ -70,6 +70,7 @@ namespace hachaturyanov
     Node* makeNode(const Key &key, const Value &value);
     Node* makeFake();
     size_t height_(Node* n) const;
+    void clear_(Node* n);
 
    public:
     using iterator = BSTIterator< Key, Value >;
@@ -103,6 +104,24 @@ namespace hachaturyanov
 
     void clear();
   };
+
+  template< class Key, class Value, class Compare >
+  void BSTree< Key, Value, Compare >::clear()
+  {
+    clear(root_);
+    root_ = nullptr;
+  }
+
+  template< class Key, class Value, class Compare >
+  void BSTree< Key, Value, Compare >::clear_(Node* n)
+  {
+    if (n == nullptr || n == fake_) {
+      return;
+    }
+    clear_(n->left);
+    clear_(n->right);
+    delete n;
+  }
 
   template< class Key, class Value, class Compare >
   size_t BSTree< Key, Value, Compare >::height(const_iterator it) const
