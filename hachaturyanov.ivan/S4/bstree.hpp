@@ -105,6 +105,18 @@ namespace hachaturyanov
   };
 
   template< class Key, class Value, class Compare >
+  size_t BSTree< Key, Value, Compare >::height(const_iterator it) const
+  {
+    return height_(it.node_);
+  }
+
+  template< class Key, class Value, class Compare >
+  size_t BSTree< Key, Value, Compare >::height() const
+  {
+    return height_(root_);
+  }
+
+  template< class Key, class Value, class Compare >
   typename BSTConstIterator< Key, Value > BSTree< Key, Value, Compare >::rotateLargeRight(const_iterator it)
   {
     Node* X = it.node_;
@@ -399,7 +411,7 @@ namespace hachaturyanov
   template< class Key, class Value, class Compare >
   size_t BSTree< Key, Value, Compare >::height_(Node* n) const
   {
-    if (n == fake_) {
+    if (n == fake_ || n == nullptr) {
       return 0;
     }
     return 1 + std::max(height_(n->left), height_(n->right));
