@@ -4,7 +4,7 @@
 #include <utility>
 #include <functional>
 #include <cstddef>
-#include <exception>
+#include <stdexcept>
 
 namespace hachaturyanov
 {

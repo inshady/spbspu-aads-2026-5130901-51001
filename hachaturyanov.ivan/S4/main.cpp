@@ -17,5 +17,7 @@ int main(int argc, char** argv)
     return 1;
   }
 
+  hachaturyanov::Store store;
 
+  hachaturyanov::readInput(store, file);
 }
