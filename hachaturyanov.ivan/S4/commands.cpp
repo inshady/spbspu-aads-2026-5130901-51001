@@ -59,7 +59,7 @@ namespace hachaturyanov
 
   void complement(Store &store, std::string &newSet, std::string &old1, std::string &old2, std::ostream &out)
   {
-    if (store.has(newSet) || !store.has(old1) || !store.has(old2)) {
+    if (!store.has(old1) || !store.has(old2)) {
       out << "<INVALID COMMAND>\n";
       return;
     }
@@ -79,7 +79,7 @@ namespace hachaturyanov
 
   void intersect(Store &store, std::string &newSet, std::string &old1, std::string &old2, std::ostream &out)
   {
-    if (store.has(newSet) || !store.has(old1) || !store.has(old2)) {
+    if (!store.has(old1) || !store.has(old2)) {
       out << "<INVALID COMMAND>\n";
       return;
     }
@@ -100,7 +100,7 @@ namespace hachaturyanov
 
   void unite(Store &store, std::string &newSet, std::string &old1, std::string &old2, std::ostream &out)
   {
-    if (store.has(newSet) || !store.has(old1) || !store.has(old2)) {
+    if (!store.has(old1) || !store.has(old2)) {
       out << "<INVALID COMMAND>\n";
       return;
     }
