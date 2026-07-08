@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE(test_rotate_large_left)
   auto it = t.begin();
   ++it;
   BOOST_TEST(t.height() == 3);
-  
+
   auto newRoot = t.rotateLargeLeft(it);
 
   BOOST_TEST(newRoot->first == 2);
