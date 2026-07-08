@@ -117,4 +117,58 @@ namespace hachaturyanov
 
     store.push(newSet, result);
   }
+
+  void execute(Store &store, std::istream &in, std::ostream &out)
+  {
+    std::string line = "";
+    while (getline(in, line)) {
+      List< std::string > strs = split(line);
+      if (!strs.isEmpty()) {
+        auto it = strs.begin();
+        if (*it == "print") {
+          if (strs.size() != 2) {
+            out << "<INVALID COMMAND>\n";
+            continue;
+          }
+          ++it;
+          print(store, *it, out);
+        } else if (*it == "complement") {
+          if (strs.size() != 4) {
+            out << "<INVALID COMMAND>\n";
+            continue;
+          }
+          ++it;
+          std::string &newSet = *it;
+          ++it;
+          std::string &old1 = *it;
+          ++it;
+          complement(store, newSet, old1, *it, out);
+        } else if (*it == "intersect") {
+          if (strs.size() != 4) {
+            out << "<INVALID COMMAND>\n";
+            continue;
+          }
+          ++it;
+          std::string &newSet = *it;
+          ++it;
+          std::string &old1 = *it;
+          ++it;
+          intersect(store, newSet, old1, *it, out);
+        } else if (*it == "union") {
+          if (strs.size() != 4) {
+            out << "<INVALID COMMAND>\n";
+            continue;
+          }
+          ++it;
+          std::string &newSet = *it;
+          ++it;
+          std::string &old1 = *it;
+          ++it;
+          unite(store, newSet, old1, *it, out);
+        } else {
+          out << "<INVALID COMMAND>\n";
+        }
+      }
+    }
+  }
 }

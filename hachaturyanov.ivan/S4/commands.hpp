@@ -15,6 +15,7 @@ namespace hachaturyanov
   void complement(Store &store, std::string &newSet, std::string &old1, std::string &old2, std::ostream &out);
   void intersect(Store &store, std::string &newSet, std::string &old1, std::string &old2, std::ostream &out);
   void unite(Store &store, std::string &newSet, std::string &old1, std::string &old2, std::ostream &out);
+  void execute(Store &store, std::istream &in, std::ostream &out);
 }
 
 #endif
