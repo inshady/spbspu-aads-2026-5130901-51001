@@ -75,4 +75,25 @@ namespace hachaturyanov
 
     store.push(newSet, result);
   }
+
+  void intersect(Store &store, std::string &newSet, std::string &old1, std::string &old2, std::ostream &out)
+  {
+    if (store.has(newSet) || !store.has(old1) || !store.has(old2)) {
+      out << "<INVALID COMMAND>\n";
+      return;
+    }
+
+    const Dataset &set1 = store.get(old1);
+    const Dataset &set2 = store.get(old2);
+
+    Dataset result;
+
+    for (auto it = set1.cbegin(); it != set1.cend(); ++it) {
+      if (set2.has(it->first)) {
+        result.push(it->first, it->second);
+      }
+    }
+
+    store.push(newSet, result);
+  }
 }
