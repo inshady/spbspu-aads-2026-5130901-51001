@@ -32,4 +32,28 @@ namespace hachaturyanov
       }
     }
   }
+
+  void print(Store &store, std::string &name, std::ostream &out)
+  {
+    Dataset* dataset = nullptr;
+    try {
+      dataset = &store.get(name);
+    } catch (std::logic_error &) {
+      out << "<INVALID COMMAND>\n";
+      return;
+    }
+
+    if (dataset->isEmpty()) {
+      out << "<EMPTY>\n";
+      return;
+    }
+
+    out << name;
+
+    for (auto it = dataset->cbegin(); it != dataset->cend(); ++it) {
+      out << ' ' << it->first << ' ' << it->second;
+    }
+
+    out << '\n';
+  }
 }

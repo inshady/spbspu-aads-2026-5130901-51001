@@ -11,6 +11,7 @@ namespace hachaturyanov
   using Store = BSTree< std::string, Dataset, std::less< std::string > >;
 
   void readInput(Store &store, std::istream &in);
+  void print(Store &store, std::string &name, std::ostream &out);
 }
 
 #endif
