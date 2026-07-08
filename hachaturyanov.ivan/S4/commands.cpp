@@ -17,16 +17,17 @@ namespace hachaturyanov
       if (strs.size() > 0) {
         auto it = strs.begin();
         std::string dataset = *it;
-        store.push(dataset, Dataset());
+        Dataset res;
         if (strs.size() > 1) {
           do {
             ++it;
             int key = std::stoi(*it);
             ++it;
             std::string value = *it;
-            store.get(dataset).push(key, value);
+            res.push(key, value);
           } while (it != strs.begin());
         }
+        store.push(dataset, res);
       } else {
         continue;
       }

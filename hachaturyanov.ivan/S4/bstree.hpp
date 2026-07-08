@@ -81,6 +81,8 @@ namespace hachaturyanov
     BSTree(const BSTree &other);
     ~BSTree();
 
+    BSTree & operator=(const BSTree &other);
+
     iterator begin();
     iterator end();
     const_iterator begin() const;
@@ -107,6 +109,18 @@ namespace hachaturyanov
 
     void clear();
   };
+
+  template< class Key, class Value, class Compare >
+  BSTree< Key, Value, Compare > & BSTree< Key, Value, Compare >::operator=(const BSTree &other)
+  {
+    if (this != &other) {
+      clear();
+      for (auto it = other.cbegin(); it != other.cend(); ++it) {
+        push(it->first, it->second);
+      }
+    }
+    return *this;
+  }
 
   template< class Key, class Value, class Compare >
   BSTree< Key, Value, Compare >::BSTree(const BSTree &other):
