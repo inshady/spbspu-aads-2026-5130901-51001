@@ -25,7 +25,7 @@ namespace hachaturyanov
             ++it;
             std::string value = *it;
             res.push(key, value);
-          } while (it != strs.begin());
+          } while (it != --strs.begin());
         }
         store.push(dataset, res);
       } else {
