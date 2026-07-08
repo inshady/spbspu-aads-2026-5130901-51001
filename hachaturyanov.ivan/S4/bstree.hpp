@@ -67,8 +67,9 @@ namespace hachaturyanov
     Node* root_;
     Node* fake_;
 
-    Node* makeNode(const Key &key, const Value &value);
-    Node* makeFake();
+    Node* makeNode_(const Key &key, const Value &value);
+    Node* makeFake_();
+    Node* findNode_(const Key &key) const;
     size_t height_(Node* n) const;
     void clear_(Node* n);
 
@@ -87,6 +88,7 @@ namespace hachaturyanov
     const_iterator cend() const;
 
     bool isEmpty() const;
+    bool has(const Key &key) const;
 
     void push(const Key &key, const Value &value);
     Value & get(const Key &key);
@@ -104,6 +106,39 @@ namespace hachaturyanov
 
     void clear();
   };
+
+  template< class Key, class Value, class Compare >
+  bool BSTree< Key, Value, Compare >::has(const Key &key) const
+  {
+    return findNode_(key);
+  }
+
+  template< class Key, class Value, class Compare >
+  BSTNode< Key, Value >* BSTree< Key, Value, Compare >::findNode_(const Key &key) const
+  {
+    if (root_ == nullptr) {
+      return nullptr;
+    }
+    Node* cur = root_;
+    Compare cmp;
+    while (true) {
+      if (cmp(key, cur->data.first)) {
+        if (cur->left != fake_) {
+          cur = cur->left;
+        } else {
+          return nullptr;
+        }
+      } else if (cmp(cur->data.first, key)) {
+        if (cur->right != fake_) {
+          cur = cur->right;
+        } else {
+          return nullptr;
+        }
+      } else {
+        return cur;
+      }
+    }
+  }
 
   template< class Key, class Value >
   BSTConstIterator< Key, Value >::BSTConstIterator(const BSTIterator< Key, Value > &other):
@@ -305,34 +340,18 @@ namespace hachaturyanov
   template< class Key, class Value, class Compare >
   Value & BSTree< Key, Value, Compare >::get(const Key &key)
   {
-    if (root_ == nullptr) {
+    Node* result = findNode_(key);
+    if (!result) {
       throw std::logic_error("Key not found");
-    }
-    Node* cur = root_;
-    Compare cmp;
-    while (true) {
-      if (cmp(key, cur->data.first)) {
-        if (cur->left != fake_) {
-          cur = cur->left;
-        } else {
-          throw std::logic_error("Key not found");
-        }
-      } else if (cmp(cur->data.first, key)) {
-        if (cur->right != fake_) {
-          cur = cur->right;
-        } else {
-          throw std::logic_error("Key not found");
-        }
-      } else {
-        return cur->data.second;
-      }
+    } else {
+      return result->data.second;
     }
   }
 
   template< class Key, class Value, class Compare >
   void BSTree< Key, Value, Compare >::push(const Key &key, const Value &value)
   {
-    Node* newNode = makeNode(key, value);
+    Node* newNode = makeNode_(key, value);
     if (root_ == nullptr) {
       root_ = newNode;
       root_->parent = fake_;
@@ -434,7 +453,7 @@ namespace hachaturyanov
 
   template< class Key, class Value, class Compare > BSTree< Key, Value, Compare >::BSTree():
    root_(nullptr),
-   fake_(makeFake())
+   fake_(makeFake_())
   {}
 
   template< class Key, class Value, class Compare >
@@ -447,7 +466,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Compare >
-  BSTNode< Key, Value >* BSTree< Key, Value, Compare >::makeFake()
+  BSTNode< Key, Value >* BSTree< Key, Value, Compare >::makeFake_()
   {
     Node* fake = static_cast< Node* >(::operator new(sizeof(Node)));
     fake->left = fake;
@@ -457,7 +476,7 @@ namespace hachaturyanov
   }
 
   template< class Key, class Value, class Compare >
-  BSTNode< Key, Value >* BSTree< Key, Value, Compare >::makeNode(const Key &key, const Value &value)
+  BSTNode< Key, Value >* BSTree< Key, Value, Compare >::makeNode_(const Key &key, const Value &value)
   {
     return new Node{ { key, value }, fake_, fake_, nullptr };
   }

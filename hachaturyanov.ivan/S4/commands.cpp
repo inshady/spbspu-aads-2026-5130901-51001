@@ -35,25 +35,44 @@ namespace hachaturyanov
 
   void print(Store &store, std::string &name, std::ostream &out)
   {
-    Dataset* dataset = nullptr;
-    try {
-      dataset = &store.get(name);
-    } catch (std::logic_error &) {
+    if (!store.has(name)) {
       out << "<INVALID COMMAND>\n";
       return;
     }
 
-    if (dataset->isEmpty()) {
+    Dataset &dataset = store.get(name);
+
+    if (dataset.isEmpty()) {
       out << "<EMPTY>\n";
       return;
     }
 
     out << name;
 
-    for (auto it = dataset->cbegin(); it != dataset->cend(); ++it) {
+    for (auto it = dataset.cbegin(); it != dataset.cend(); ++it) {
       out << ' ' << it->first << ' ' << it->second;
     }
 
     out << '\n';
+  }
+
+  void complement(Store &store, std::string &newSet, std::string &old1, std::string &old2, std::ostream &out)
+  {
+    if (store.has(newSet) || !store.has(old1) || !store.has(old2)) {
+      out << "<INVALID COMMAND>\n";
+      return;
+    }
+
+    const Dataset &set1 = store.get(old1);
+    const Dataset &set2 = store.get(old2);
+    Dataset result;
+
+    for (auto it = set1.cbegin(); it != set1.cend(); ++it) {
+      if (!set2.has(it->first)) {
+        result.push(it->first, it->second);
+      }
+    }
+
+    store.push(newSet, result);
   }
 }
