@@ -78,6 +78,7 @@ namespace hachaturyanov
     using const_iterator = BSTConstIterator< Key, Value >;
 
     BSTree();
+    BSTree(const BSTree &other);
     ~BSTree();
 
     iterator begin();
@@ -106,6 +107,16 @@ namespace hachaturyanov
 
     void clear();
   };
+
+  template< class Key, class Value, class Compare >
+  BSTree< Key, Value, Compare >::BSTree(const BSTree &other):
+   root_(nullptr),
+   fake_(makeFake_())
+  {
+    for (auto it = other.cbegin(); it != other.cend(); ++it) {
+      push(it->first, it->second);
+    }
+  }
 
   template< class Key, class Value, class Compare >
   bool BSTree< Key, Value, Compare >::has(const Key &key) const

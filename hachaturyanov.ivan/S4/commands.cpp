@@ -96,4 +96,25 @@ namespace hachaturyanov
 
     store.push(newSet, result);
   }
+
+  void unite(Store &store, std::string &newSet, std::string &old1, std::string &old2, std::ostream &out)
+  {
+    if (store.has(newSet) || !store.has(old1) || !store.has(old2)) {
+      out << "<INVALID COMMAND>\n";
+      return;
+    }
+
+    const Dataset &set1 = store.get(old1);
+    const Dataset &set2 = store.get(old2);
+
+    Dataset result = set1;
+
+    for (auto it = set2.cbegin(); it != set2.cend(); ++it) {
+      if (!set1.has(it->first)) {
+        result.push(it->first, it->second);
+      }
+    }
+
+    store.push(newSet, result);
+  }
 }
