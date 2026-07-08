@@ -20,4 +20,7 @@ int main(int argc, char** argv)
   hachaturyanov::Store store;
 
   hachaturyanov::readInput(store, file);
+  hachaturyanov::execute(store, std::cin, std::cout);
+
+  return 0;
 }
