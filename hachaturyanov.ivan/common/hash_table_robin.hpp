@@ -291,7 +291,7 @@ namespace hachaturyanov
   const Value & HashTable< Key, Value, Hash, Equal >::get(const Key &key) const
   {
     size_t id = findIndex_(key);
-    if (id == capacity_ || data_[id].state != OCCUPIED) {
+    if (id == capacity_) {
       throw std::runtime_error("Key not found");
     }
     return data_[id].value;
@@ -300,21 +300,19 @@ namespace hachaturyanov
   template< class Key, class Value, class Hash, class Equal >
   Value & HashTable< Key, Value, Hash, Equal >::get(const Key &key)
   {
-    
+    size_t id = findIndex_(key);
+    if (id == capacity_) {
+      throw std::runtime_error("Key not found");
+    }
+    return data_[id].value;
   }
 
-  template< class Key, class Value, class Hash, class Equal >
+  //template< class Key, class Value, class Hash, class Equal >
   Value & HashTable< Key, Value, Hash, Equal >::operator[](const Key &key)
   {
     size_t id = findIndex_(key);
     if (id == capacity_) {
-      throw std::runtime_error("Failed to add key-value pair, rehashing recommended");
-    }
-    if (data_[id].state != OCCUPIED) {
-      data_[id].key = key;
-      data_[id].value = Value{};
-      data_[id].state = OCCUPIED;
-      size_++;
+      add(key, Value{});
     }
     return data_[id].value;
   }
@@ -449,8 +447,7 @@ namespace hachaturyanov
     Value newValue = value;
     int psl = 0;
 
-    bool inserted = false;
-    for(size_t i = 0; i < capacity_ && !inserted; i++) {
+    for(size_t i = 0; i < capacity_ &&; i++) {
       Slot< Key, Value > &cur = data_[idx];
 
       if (cur.psl == -1) {
@@ -458,14 +455,12 @@ namespace hachaturyanov
         cur.value = newValue;
         cur.psl = psl;
         size_++;
-        inserted = true;
-        break;
+        return;
       }
 
       if (cur.key == key) {
-        cur.value = value;
-        inserted = true;
-        break;
+        cur.value = newValue;
+        return;
       }
 
       if (cur.psl < psl) {
@@ -478,22 +473,47 @@ namespace hachaturyanov
       psl++;
     }
 
-    if (inserted) {
-      throw std::runtime_error("Table is full despite LF check");
-    }
+    throw std::runtime_error("Table is full despite LF check");
   }
 
   template< class Key, class Value, class Hash, class Equal >
   Value HashTable< Key, Value, Hash, Equal >::drop(const Key &key)
   {
-    size_t id = findIndex_(key);
-    if (id == capacity_ || data_[id].state != OCCUPIED) {
-      throw std::runtime_error("Key not found");
+    size_t idx = hash_(key) % capacity_;
+    int psl = 0;
+    
+    bool found = false;
+    for (size_t i = 0; i < capacity_; i++) {
+      Slot< Key, Value > &cur = data_[idx];
+      if (cur.psl == -1 || psl > cur.psl) {
+        throw std::logic_error("Key not found");
+      }
+      if (cur.key == key) {
+        found = true;
+        break;
+      }
+      idx = (idx + 1) % capacity_;
+      psl++;
     }
-    Value value = data_[id].value;
-    data_[id].state = TOMBSTONE;
+
+    if (!found) {
+      throw std::logic_error("Key not found");
+    }
+
+    Value val = data_[idx].value;
+
+    size_t next = (idx + 1) % capacity_;
+    while (data_[next].psl > 0) {
+      data_[idx].key = data_[next].key;
+      data_[idx].value = data_[next].value;
+      data_[idx].psl = data_[next].psl - 1;
+      idx = next;
+      next = (next + 1) % capacity_;
+    }
+
+    data_[idx].psl = -1;
     size_--;
-    return value;
+    return val;
   }
 
   template< class Key, class Value, class Hash, class Equal >
