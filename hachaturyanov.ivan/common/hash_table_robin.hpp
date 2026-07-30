@@ -104,6 +104,7 @@ namespace hachaturyanov
 
     void swap_(HashTable &other);
     size_t findIndex_(const Key &key) const;
+    size_t add_(const Key &key, const Value &value);
   };
 
   template< class Key, class Value > class HTIter {
@@ -168,7 +169,7 @@ namespace hachaturyanov
   HTCIter< Key, Value > HashTable< Key, Value, Hash, Equal >::begin() const
   {
     size_t i = 0;
-    while(i < capacity_ && data_[i].state != OCCUPIED) {
+    while(i < capacity_ && data_[i].psl != -1) {
       i++;
     }
     return HTCIter< Key, Value >(data_, i, capacity_);
@@ -184,7 +185,7 @@ namespace hachaturyanov
   HTIter< Key, Value > HashTable< Key, Value, Hash, Equal >::begin()
   {
     size_t i = 0;
-    while(i < capacity_ && data_[i].state != OCCUPIED) {
+    while(i < capacity_ && data_[i].psl != -1) {
       i++;
     }
     return HTIter< Key, Value >(data_, i, capacity_);
@@ -227,7 +228,7 @@ namespace hachaturyanov
   {
     do {
       index_++;
-    } while (index_ < capacity_ && data_[index_].state != OCCUPIED);
+    } while (index_ < capacity_ && data_[index_].psl != -1);
     return *this;
   }
 
@@ -261,7 +262,7 @@ namespace hachaturyanov
   {
     do {
       index_++;
-    } while (index_ < capacity_ && data_[index_].state != OCCUPIED);
+    } while (index_ < capacity_ && data_[index_].psl != -1);
     return *this;
   }
 
@@ -270,7 +271,7 @@ namespace hachaturyanov
   {
     List< Key > result;
     for (size_t i = 0; i < capacity_; i++) {
-      if (data_[i].state == OCCUPIED) {
+      if (data_[i].psl != -1) {
         result.insertSorted(data_[i].key);
       }
     }
@@ -307,12 +308,12 @@ namespace hachaturyanov
     return data_[id].value;
   }
 
-  //template< class Key, class Value, class Hash, class Equal >
+  template< class Key, class Value, class Hash, class Equal >
   Value & HashTable< Key, Value, Hash, Equal >::operator[](const Key &key)
   {
     size_t id = findIndex_(key);
     if (id == capacity_) {
-      add(key, Value{});
+      id = add_(key, Value{});
     }
     return data_[id].value;
   }
@@ -400,7 +401,7 @@ namespace hachaturyanov
   void HashTable< Key, Value, Hash, Equal >::clear()
   {
     for (size_t i = 0; i < capacity_; i++) {
-      data_[i].state = EMPTY;
+      data_[i].psl = -1;
     }
     size_ = 0;
   }
@@ -438,6 +439,12 @@ namespace hachaturyanov
   template< class Key, class Value, class Hash, class Equal >
   void HashTable< Key, Value, Hash, Equal >::add(const Key &key, const Value &value)
   {
+    add_(key, value);
+  }
+
+  template< class Key, class Value, class Hash, class Equal >
+  size_t HashTable< Key, Value, Hash, Equal >::add_(const Key &key, const Value &value)
+  {
     if (static_cast< double >(size_ + 1) / capacity_ > MAX_LOAD_FACTOR) {
       rehash(capacity_ * 2);
     }
@@ -447,6 +454,9 @@ namespace hachaturyanov
     Value newValue = value;
     int psl = 0;
 
+    size_t result_id = capacity_;
+    bool added = false;
+
     for(size_t i = 0; i < capacity_ &&; i++) {
       Slot< Key, Value > &cur = data_[idx];
 
@@ -455,18 +465,25 @@ namespace hachaturyanov
         cur.value = newValue;
         cur.psl = psl;
         size_++;
-        return;
+        if (!added) {
+          result_id = idx;
+        }
+        return result_id;
       }
 
-      if (cur.key == key) {
+      if (!placed && cur.key == key) {
         cur.value = newValue;
-        return;
+        return idx;
       }
 
       if (cur.psl < psl) {
         std::swap(cur.key, newKey);
         std::swap(cur.value, newValue);
         std::swap(cur.psl, psl);
+        if (!placed) {
+          result_id = idx;
+          placed = true;
+        }
       }
 
       idx = (idx + 1) % capacity_;
