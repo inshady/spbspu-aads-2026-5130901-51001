@@ -44,12 +44,6 @@ namespace hachaturyanov
     return n;
   }
 
-  enum State {
-    EMPTY,
-    OCCUPIED,
-    TOMBSTONE
-  };
-
   template< class Key, class Value > struct Slot {
     Key key;
     Value value;
@@ -169,7 +163,7 @@ namespace hachaturyanov
   HTCIter< Key, Value > HashTable< Key, Value, Hash, Equal >::begin() const
   {
     size_t i = 0;
-    while(i < capacity_ && data_[i].psl != -1) {
+    while(i < capacity_ && data_[i].psl == -1) {
       i++;
     }
     return HTCIter< Key, Value >(data_, i, capacity_);
@@ -185,7 +179,7 @@ namespace hachaturyanov
   HTIter< Key, Value > HashTable< Key, Value, Hash, Equal >::begin()
   {
     size_t i = 0;
-    while(i < capacity_ && data_[i].psl != -1) {
+    while(i < capacity_ && data_[i].psl == -1) {
       i++;
     }
     return HTIter< Key, Value >(data_, i, capacity_);
@@ -228,7 +222,7 @@ namespace hachaturyanov
   {
     do {
       index_++;
-    } while (index_ < capacity_ && data_[index_].psl != -1);
+    } while (index_ < capacity_ && data_[index_].psl == -1);
     return *this;
   }
 
@@ -262,7 +256,7 @@ namespace hachaturyanov
   {
     do {
       index_++;
-    } while (index_ < capacity_ && data_[index_].psl != -1);
+    } while (index_ < capacity_ && data_[index_].psl == -1);
     return *this;
   }
 
@@ -332,7 +326,7 @@ namespace hachaturyanov
         return capacity_;
       }
 
-      if (cur.key == key) {
+      if (equal_(cur.key, key)) {
         return idx;
       }
 
@@ -457,7 +451,7 @@ namespace hachaturyanov
     size_t result_id = capacity_;
     bool added = false;
 
-    for(size_t i = 0; i < capacity_ &&; i++) {
+    for(size_t i = 0; i < capacity_; i++) {
       Slot< Key, Value > &cur = data_[idx];
 
       if (cur.psl == -1) {
@@ -471,7 +465,7 @@ namespace hachaturyanov
         return result_id;
       }
 
-      if (!placed && cur.key == key) {
+      if (!added && equal_(cur.key, key)) {
         cur.value = newValue;
         return idx;
       }
@@ -480,9 +474,9 @@ namespace hachaturyanov
         std::swap(cur.key, newKey);
         std::swap(cur.value, newValue);
         std::swap(cur.psl, psl);
-        if (!placed) {
+        if (!added) {
           result_id = idx;
-          placed = true;
+          added = true;
         }
       }
 
@@ -505,7 +499,7 @@ namespace hachaturyanov
       if (cur.psl == -1 || psl > cur.psl) {
         throw std::logic_error("Key not found");
       }
-      if (cur.key == key) {
+      if (equal_(cur.key, key)) {
         found = true;
         break;
       }
@@ -544,22 +538,21 @@ namespace hachaturyanov
   {
     size_t new_capacity = nextPrime(slots);
     Slot< Key, Value >* new_data = new Slot< Key, Value >[new_capacity];
+    
+    Slot< Key, Value >* old_data = data_;
+    size_t old_capacity = capacity_;
 
-    for (size_t i = 0; i < capacity_; i++) {
-      if (data_[i].state == OCCUPIED) {
-        for (size_t j = 0; j < new_capacity; j++) {
-          size_t id = (hash_(data_[i].key) + j * j) % new_capacity;
-          if (new_data[id].state == EMPTY) {
-            new_data[id] = data_[i];
-            break;
-          }
-        }
+    data_ = new_data;
+    capacity_ = new_capacity;
+    size_ = 0;
+
+    for (size_t i = 0; i < old_capacity; i++) {
+      if (old_data[i].psl != -1) {
+        add_(old_data[i].key, old_data[i].value);
       }
     }
 
-    std::swap(data_, new_data);
-    std::swap(capacity_, new_capacity);
-    delete[] new_data;
+    delete[] old_data;
   }
 
 }
