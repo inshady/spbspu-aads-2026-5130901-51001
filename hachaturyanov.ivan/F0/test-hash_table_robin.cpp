@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <random>
 
 #include "../common/hash_table_robin.hpp"
 
@@ -302,6 +303,132 @@ BOOST_AUTO_TEST_CASE(test_rehash_moves_all_elements)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_iteration_after_rehash_correct)
+{
+  Table h(7);
 
+  for (int i = 0; i < 30; i++) {
+    h.add(i, "v" + std::to_string(i));
+  }
+
+  std::vector< int > seenKeys;
+  for (auto it = h.begin(); it != h.end(); ++it) {
+    seenKeys.push_back((*it).first);
+  }
+
+  std::sort(seenKeys.begin(), seenKeys.end());
+  BOOST_TEST(seenKeys.size() == h.size());
+  for (int i = 0; i < 30; i++) {
+    BOOST_TEST(std::binary_search(seenKeys.begin(), seenKeys.end(), i));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_const_iteration_after_rehash_correct)
+{
+  Table h(7);
+
+  for (int i = 0; i < 30; i++) {
+    h.add(i, "v" + std::to_string(i));
+  }
+
+  const Table &constRef = h;
+
+  std::vector< int > seenKeys;
+  for (auto it = constRef.begin(); it != constRef.end(); ++it) {
+    seenKeys.push_back((*it).first);
+  }
+
+  std::sort(seenKeys.begin(), seenKeys.end());
+  BOOST_TEST(seenKeys.size() == constRef.size());
+  for (int i = 0; i < 30; i++) {
+    BOOST_TEST(std::binary_search(seenKeys.begin(), seenKeys.end(), i));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_random_operations_match_model)
+{
+  Table h(7);
+  std::unordered_map< int, std::string > ref;
+
+  std::mt19937 rng(67);
+  std::uniform_int_distribution< int > keyDist(0, 40);
+  std::uniform_int_distribution< int > opDist(0, 1);
+
+  for (int step = 0; step < 2000; step++) {
+    int key = keyDist(rng);
+    bool doInsert = opDist(rng) == 0;
+
+    if (doInsert) {
+      std::string value = "v" + std::to_string(step);
+      h.add(key, value);
+      ref[key] = value;
+    } else {
+      bool existedInRef = ref.count(key) != 0;
+      bool existedInTable = h.has(key);
+      BOOST_TEST(existedInRef == existedInTable);
+      if (existedInRef) {
+        h.drop(key);
+        ref.erase(key);
+      } else {
+        BOOST_CHECK_THROW(h.drop(key), std::logic_error);
+      }
+    }
+  }
+
+  BOOST_TEST(h.size() == ref.size());
+  for (auto kv : ref) {
+    BOOST_TEST(h.has(kv.first));
+    BOOST_TEST(h.get(kv.first) == kv.second);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_correct_copy_with_collisions)
+{
+  Table h(7);
+  for (int i = 0; i < 20; i++) {
+    h.add(i, "v" + std::to_string(i));
+  }
+
+  Table copy(h);
+  copy.add(1000, "only_in_copy");
+  h.drop(0);
+
+  BOOST_TEST(copy.has(0));
+  BOOST_TEST(!h.has(0));
+  BOOST_TEST(copy.has(1000));
+  BOOST_TEST(!h.has(1000));
+
+  for (int i = 1; i < 20; i++) {
+    BOOST_TEST(copy.has(i));
+    BOOST_TEST(h.has(i));
+    BOOST_TEST(h.get(i) == copy.get(i));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_table_is_reusable)
+{
+  Table h(7);
+  for (int i = 0; i < 45; i++) {
+    h.add(i, "v" + std::to_string(i));
+  }
+  size_t capacityAfterFill = h.capacity();
+
+  h.clear();
+  BOOST_TEST(h.size() == 0);
+  BOOST_TEST(h.empty());
+
+  for (int i = 0; i < 45; i++) {
+    BOOST_TEST(!h.has(i));
+  }
+
+  for (int i = 0; i < 45; i++) {
+    h.add(i, "new" + std::to_string(i));
+  }
+  BOOST_TEST(h.size() == 45);
+  for (int i = 0; i < 45; i++) {
+    BOOST_TEST(h.get(i) == "new" + std::to_string(i));
+  }
+  BOOST_TEST(h.capacity() == capacityAfterFill);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
