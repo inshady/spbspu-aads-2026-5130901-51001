@@ -35,8 +35,6 @@ namespace hachaturyanov
     }
     if (n % 2 == 0) {
       n++;
-    } else {
-      n += 2;
     }
     while (!isPrime(n)) {
       n += 2;
