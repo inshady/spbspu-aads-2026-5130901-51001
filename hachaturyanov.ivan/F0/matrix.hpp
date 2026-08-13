@@ -36,12 +36,16 @@ namespace hachaturyanov
     int get(size_t i, size_t j) const;
     void set(size_t i, size_t j, int value);
 
+    Matrix operator+(const Matrix &other) const;
+    Matrix operator-(const Matrix &other) const;
+    Matrix operator*(const Matrix &other) const;
    private:
     size_t rows_;
     size_t cols_;
     Store data_;
 
     void checkBounds_(size_t i, size_t j) const;
+    void checkSameDims_(const Matrix &other) const;
   };
 }
 
