@@ -52,6 +52,7 @@ namespace hachaturyanov
     void delete_col(size_t index);
 
     void append_rows(const Matrix &source, size_t start, size_t end);
+    Matrix embed(size_t newRows, size_t newCols, size_t rowOffset, size_t colOffset, int fill) const;
    private:
     size_t rows_;
     size_t cols_;

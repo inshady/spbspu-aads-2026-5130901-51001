@@ -267,4 +267,19 @@ namespace hachaturyanov
     data_ = std::move(temp);
     rows_ += n;
   }
+
+  Matrix Matrix::embed(size_t newRows, size_t newCols, size_t rowOffset, size_t colOffset, int fill) const
+  {
+    if (rowOffset + rows_ > newRows || colOffset + cols_ > newCols) {
+      throw std::out_of_range("Index out of range");
+    }
+
+    Matrix result(newRows, newCols, fill);
+    for (size_t i = 0; i < rows_; i++) {
+      for (size_t j = 0; j < cols_; j++) {
+        result.set(i + rowOffset, j + colOffset, get(i, j));
+      }
+    }
+    return result;
+  }
 }
