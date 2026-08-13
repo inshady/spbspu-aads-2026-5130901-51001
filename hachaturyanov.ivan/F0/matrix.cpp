@@ -146,8 +146,8 @@ namespace hachaturyanov
     }
 
     auto it = values.begin();
-
     Store temp((rows_ + 1) * cols_);
+
     for (size_t i = 0; i < rows_ + 1; i++) {
       for (size_t j = 0; j < cols_; j++) {
         if (i < index) {
@@ -162,5 +162,109 @@ namespace hachaturyanov
     }
     data_ = std::move(temp);
     rows_++;
+  }
+
+  void Matrix::insert_col(size_t index, List< int > &values)
+  {
+    if (rows_ != values.size()) {
+      throw std::logic_error("Numbers of values and rows don't match");
+    }
+    if (index > cols_) {
+      throw std::out_of_range("Index out of range");
+    }
+
+    auto it = values.begin();
+    Store temp(rows_ * (cols_ + 1));
+
+    for (size_t i = 0; i < rows_; i++) {
+      for (size_t j = 0; j < cols_ + 1; j++) {
+        if (j < index) {
+          temp.add({ i, j }, get(i, j));
+        } else if (j == index) {
+          temp.add({ i, j }, *it);
+          ++it;
+        } else {
+          temp.add({ i, j }, get(i, j - 1));
+        }
+      }
+    }
+    data_ = std::move(temp);
+    cols_++;
+  }
+
+  void Matrix::delete_row(size_t index)
+  {
+    if (index >= rows_) {
+      throw std::out_of_range("Index out of range");
+    }
+    if (rows_ == 1) {
+      throw std::logic_error("Matrix contains only one row");
+    }
+
+    Store temp((rows_ - 1) * cols_);
+
+    for(size_t i = 0; i < rows_ - 1; i++) {
+      for (size_t j = 0; j < cols_; j++) {
+        if (i < index) {
+          temp.add({ i, j }, get(i, j));
+        } else {
+          temp.add({ i, j }, get(i + 1, j));
+        }
+      }
+    }
+    data_ = std::move(temp);
+    rows_--;
+  }
+
+  void Matrix::delete_col(size_t index)
+  {
+    if (index >= cols_) {
+      throw std::out_of_range("Index out of range");
+    }
+    if (cols_ == 1) {
+      throw std::logic_error("Matrix contains only one col");
+    }
+
+    Store temp(rows_ * (cols_ - 1));
+
+    for(size_t i = 0; i < rows_; i++) {
+      for (size_t j = 0; j < cols_ - 1; j++) {
+        if (j < index) {
+          temp.add({ i, j }, get(i, j));
+        } else {
+          temp.add({ i, j }, get(i, j + 1));
+        }
+      }
+    }
+    data_ = std::move(temp);
+    cols_--;
+  }
+
+  void Matrix::append_rows(const Matrix &source, size_t start, size_t end)
+  {
+    if (source.cols_ != cols_) {
+      throw std::logic_error("Numbers of cols don't match");
+    }
+    if (start >= source.rows_ || end >= source.rows_ || start > end) {
+      throw std::out_of_range("Index out of range");
+    }
+
+    size_t n = end - start + 1;
+    Store temp((rows_ + n) * cols_);
+
+    for (size_t i = 0; i < rows_ + n; i++) {
+      for (size_t j = 0; j < cols_; j++) {
+        if (i < rows_) {
+          temp.add({ i, j }, get(i, j));
+        } else {
+          temp.add({ i, j }, source.get(start, j));
+          if (j == cols_ - 1) {
+            start++;
+          }
+        }
+      }
+    }
+    data_ = std::move(temp);
+    rows_ += n;
   }
 }

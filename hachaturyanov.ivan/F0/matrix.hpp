@@ -47,6 +47,11 @@ namespace hachaturyanov
     bool operator!=(const Matrix &other) const;
 
     void insert_row(size_t index, List< int > &values);
+    void insert_col(size_t index, List< int > &values);
+    void delete_row(size_t index);
+    void delete_col(size_t index);
+
+    void append_rows(const Matrix &source, size_t start, size_t end);
    private:
     size_t rows_;
     size_t cols_;
