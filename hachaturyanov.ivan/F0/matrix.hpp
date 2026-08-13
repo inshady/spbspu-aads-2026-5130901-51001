@@ -29,11 +29,19 @@ namespace hachaturyanov
     using Store = HashTable< Key, int, PairHash, PairEqual >;
 
     Matrix(size_t rows, size_t cols, int fill);
-    
+
+    size_t rows() const noexcept;
+    size_t cols() const noexcept;
+
+    int get(size_t i, size_t j) const;
+    void set(size_t i, size_t j, int value);
+
    private:
     size_t rows_;
     size_t cols_;
     Store data_;
+
+    void checkBounds_(size_t i, size_t j) const;
   };
 }
 
