@@ -282,4 +282,56 @@ namespace hachaturyanov
     }
     return result;
   }
+
+  void Matrix::join_right(const Matrix &source, int fill)
+  {
+    size_t newRows = std::max(rows_, source.rows_);
+    size_t newCols = cols_ + source.cols_;
+    Store temp(newRows * newCols);
+
+    for (size_t i = 0; i < newRows; i++) {
+      for (size_t j = 0; j < newCols; j++) {
+        int value = fill;
+        if (j < cols_) {
+          if (i < rows_) {
+            value = get(i, j);
+          }
+        } else {
+          if (i < source.rows_) {
+            value = source.get(i, j - cols_);
+          }
+        }
+        temp.add({ i, j }, value);
+      }
+    }
+    data_ = std::move(temp);
+    rows_ = std::max(rows_, source.rows_);
+    cols_ += source.cols_; 
+  }
+
+  void Matrix::join_bottom(const Matrix &source, int fill)
+  {
+    size_t newRows = rows_ + source.rows_;
+    size_t newCols = std::max(cols_, source.cols_);
+    Store temp(newRows * newCols);
+
+    for (size_t i = 0; i < newRows; i++) {
+      for (size_t j = 0; j < newCols; j++) {
+        int value = fill;
+        if (i < rows_) {
+          if (j < cols_) {
+            value = get(i, j);
+          }
+        } else {
+          if (j < source.cols_) {
+            value = source.get(i - rows_, j);
+          }
+        }
+        temp.add({ i, j }, value);
+      }
+    }
+    data_ = std::move(temp);
+    rows_ += source.rows_;
+    cols_ = std::max(cols_, source.cols_);
+  }
 }

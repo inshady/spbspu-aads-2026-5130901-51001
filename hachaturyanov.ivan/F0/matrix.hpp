@@ -53,6 +53,9 @@ namespace hachaturyanov
 
     void append_rows(const Matrix &source, size_t start, size_t end);
     Matrix embed(size_t newRows, size_t newCols, size_t rowOffset, size_t colOffset, int fill) const;
+
+    void join_right(const Matrix &source, int fill);
+    void join_bottom(const Matrix &source, int fill);
    private:
     size_t rows_;
     size_t cols_;
