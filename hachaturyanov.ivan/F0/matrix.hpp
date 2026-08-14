@@ -56,6 +56,10 @@ namespace hachaturyanov
 
     void join_right(const Matrix &source, int fill);
     void join_bottom(const Matrix &source, int fill);
+    Matrix crop(size_t row, size_t col, size_t newRows, size_t newCols) const;
+    void replace(const Matrix &source, size_t row, size_t col);
+    Matrix flatten() const;
+    Matrix repeat(size_t tileRows, size_t tileCols) const;
    private:
     size_t rows_;
     size_t cols_;

@@ -334,4 +334,72 @@ namespace hachaturyanov
     rows_ += source.rows_;
     cols_ = std::max(cols_, source.cols_);
   }
+
+  Matrix Matrix::crop(size_t row, size_t col, size_t newRows, size_t newCols) const
+  {
+    if (newRows > rows_ || row > rows_ - newRows) {
+      throw std::logic_error("Crop area not in bounds");
+    }
+    if (newCols > cols_ || col > cols_ - newCols) {
+      throw std::logic_error("Crop area not in bounds");
+    }
+ 
+    Matrix result(newRows, newCols, 0);
+    for (size_t i = 0; i < newRows; i++) {
+      for (size_t j = 0; j < newCols; j++) {
+        result.set(i, j, get(i + row, j + col));
+      }
+    }
+    return result;
+  }
+
+  void Matrix::replace(const Matrix &source, size_t row, size_t col)
+  {
+    if (row > rows_ || source.rows_ > rows_ - row) {
+      throw std::logic_error("Out of destination matrix's bounds");
+    }
+    if (col > cols_ || source.cols_ > cols_ - col) {
+      throw std::logic_error("Out of destination matrix's bounds");
+    }
+
+    Store temp(data_);
+    for (size_t i = 0; i < source.rows_; i++) {
+      for (size_t j = 0; j < source.cols_; j++) {
+        temp.get({ i + row, j + col }) = source.get(i, j);
+      }
+    }
+    data_ = std::move(temp);
+  }
+
+  Matrix Matrix::flatten() const
+  {
+    Matrix result(1, rows_ * cols_, 0);
+
+    for (size_t i = 0; i < rows_; i++) {
+      for(size_t j = 0; j < cols_; j++) {
+        result.set(0, i * cols_ + j, get(i, j));
+      }
+    }
+    return result;
+  }
+
+  Matrix Matrix::repeat(size_t tileRows, size_t tileCols) const
+  {
+    if (tileRows == 0 || tileCols == 0) {
+      throw std::logic_error("Repeat times should be positive");
+    }
+
+    Matrix result(rows_ * tileRows, cols_ * tileCols, 0);
+
+    for (size_t ti = 0; ti < tileRows; ti++) {
+      for (size_t tj = 0; tj < tileCols; tj++) {
+        for (size_t i = 0; i < rows_; i++) {
+          for (size_t j = 0; j < cols_; j++) {
+            result.set(ti * rows_ + i, tj * cols_ + j, get(i, j));
+          }
+        }
+      }
+    }
+    return result;
+  }
 }
