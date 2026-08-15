@@ -63,7 +63,8 @@ namespace hachaturyanov
     }
   }
 
-  void cmdAdd(MatrixTable &matrices, std::string res, std::string matrix1, std::string matrix2, std::ostream &out)
+  void cmdAdd(MatrixTable &matrices, const std::string &res,
+      const std::string &matrix1, const std::string &matrix2, std::ostream &out)
   {
     try {
       if (matrices.has(res)) {
@@ -80,7 +81,8 @@ namespace hachaturyanov
     }
   }
 
-  void cmdSub(MatrixTable &matrices, std::string res, std::string matrix1, std::string matrix2, std::ostream &out)
+  void cmdSub(MatrixTable &matrices, const std::string &res,
+      const std::string &matrix1, const std::string &matrix2, std::ostream &out)
   {
     try {
       if (matrices.has(res)) {
@@ -97,7 +99,8 @@ namespace hachaturyanov
     }
   }
 
-  void cmdMul(MatrixTable &matrices, std::string res, std::string matrix1, std::string matrix2, std::ostream &out)
+  void cmdMul(MatrixTable &matrices, const std::string &res,
+      const std::string &matrix1, const std::string &matrix2, std::ostream &out)
   {
     try {
       if (matrices.has(res)) {
@@ -114,7 +117,8 @@ namespace hachaturyanov
     }
   }
 
-  void cmdScale(MatrixTable &matrices, std::string res, std::string name, int scalar, std::ostream &out)
+  void cmdScale(MatrixTable &matrices, const std::string &res,
+      const std::string &name, int scalar, std::ostream &out)
   {
     try {
       if (matrices.has(res)) {
@@ -146,5 +150,14 @@ namespace hachaturyanov
     }
   }
 
-  
+  void cmdInsertRow(MatrixTable &matrices, const std::string &name, 
+      size_t rowIndex, const List< int > &values, std::ostream &out)
+  {
+    try {
+      Matrix &matrix = matrices.get(name);
+      matrix.insert_row(rowIndex, values);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
 }

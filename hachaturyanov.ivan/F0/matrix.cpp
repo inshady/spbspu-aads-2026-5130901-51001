@@ -136,7 +136,7 @@ namespace hachaturyanov
     return !(*this == other);
   }
 
-  void Matrix::insert_row(size_t index, List< int > &values)
+  void Matrix::insert_row(size_t index, const List< int > &values)
   {
     if (cols_ != values.size()) {
       throw std::logic_error("Numbers of values and cols don't match");
@@ -164,7 +164,7 @@ namespace hachaturyanov
     rows_++;
   }
 
-  void Matrix::insert_col(size_t index, List< int > &values)
+  void Matrix::insert_col(size_t index, const List< int > &values)
   {
     if (rows_ != values.size()) {
       throw std::logic_error("Numbers of values and rows don't match");

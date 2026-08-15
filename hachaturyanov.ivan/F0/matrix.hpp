@@ -39,15 +39,15 @@ namespace hachaturyanov
     Matrix operator+(const Matrix &other) const;
     Matrix operator-(const Matrix &other) const;
     Matrix operator*(const Matrix &other) const;
-    
+
     Matrix operator*(int factor) const;
     Matrix transpose() const;
 
     bool operator==(const Matrix &other) const;
     bool operator!=(const Matrix &other) const;
 
-    void insert_row(size_t index, List< int > &values);
-    void insert_col(size_t index, List< int > &values);
+    void insert_row(size_t index, const List< int > &values);
+    void insert_col(size_t index, const List< int > &values);
     void delete_row(size_t index);
     void delete_col(size_t index);
 
