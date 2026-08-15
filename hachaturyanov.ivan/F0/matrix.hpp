@@ -39,8 +39,8 @@ namespace hachaturyanov
     Matrix operator+(const Matrix &other) const;
     Matrix operator-(const Matrix &other) const;
     Matrix operator*(const Matrix &other) const;
-
-    Matrix scale(int factor) const;
+    
+    Matrix operator*(int factor) const;
     Matrix transpose() const;
 
     bool operator==(const Matrix &other) const;

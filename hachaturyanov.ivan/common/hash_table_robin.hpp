@@ -285,7 +285,7 @@ namespace hachaturyanov
   {
     size_t id = findIndex_(key);
     if (id == capacity_) {
-      throw std::runtime_error("Key not found");
+      throw std::out_of_range("Key not found");
     }
     return data_[id].value;
   }
@@ -295,7 +295,7 @@ namespace hachaturyanov
   {
     size_t id = findIndex_(key);
     if (id == capacity_) {
-      throw std::runtime_error("Key not found");
+      throw std::out_of_range("Key not found");
     }
     return data_[id].value;
   }
@@ -495,7 +495,7 @@ namespace hachaturyanov
     for (size_t i = 0; i < capacity_; i++) {
       Slot< Key, Value > &cur = data_[idx];
       if (cur.psl == -1 || psl > cur.psl) {
-        throw std::logic_error("Key not found");
+        throw std::out_of_range("Key not found");
       }
       if (equal_(cur.key, key)) {
         found = true;
@@ -506,7 +506,7 @@ namespace hachaturyanov
     }
 
     if (!found) {
-      throw std::logic_error("Key not found");
+      throw std::out_of_range("Key not found");
     }
 
     Value val = data_[idx].value;

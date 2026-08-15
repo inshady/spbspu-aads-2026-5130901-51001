@@ -94,7 +94,7 @@ namespace hachaturyanov
     return result;
   }
 
-  Matrix Matrix::scale(int factor) const
+  Matrix Matrix::operator*(int factor) const
   {
     Matrix result(rows_, cols_, 0);
     for (size_t i = 0; i < rows_; i++) {
