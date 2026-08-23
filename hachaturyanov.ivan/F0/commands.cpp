@@ -33,6 +33,10 @@ namespace hachaturyanov
 
   void cmdNew(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 5) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
@@ -52,6 +56,10 @@ namespace hachaturyanov
 
   void cmdDrop(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 2) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
@@ -65,11 +73,15 @@ namespace hachaturyanov
 
   void cmdShow(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 2) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
 
-    if (tokens.size() == 2 && matrices.has(name)) {
+    if (matrices.has(name)) {
       const Matrix &matrix = matrices.get(name);
       out << "<ROWS: " << matrix.rows() << ", COLS: " << matrix.cols() << ", DATA: [";
       for (size_t i = 0; i < matrix.rows(); i++) {
@@ -93,6 +105,10 @@ namespace hachaturyanov
 
   void cmdSet(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 5) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
@@ -112,6 +128,10 @@ namespace hachaturyanov
 
   void cmdGet(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 4) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
@@ -119,7 +139,6 @@ namespace hachaturyanov
     size_t row = parseSizeT(*it);
     ++it;
     size_t col = parseSizeT(*it);
-    ++it;
 
     try {
       int result = matrices.get(name).get(row, col);
@@ -131,6 +150,10 @@ namespace hachaturyanov
 
   void cmdAdd(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 4) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string res = *it;
@@ -156,6 +179,10 @@ namespace hachaturyanov
 
   void cmdSub(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 4) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string res = *it;
@@ -181,6 +208,10 @@ namespace hachaturyanov
 
   void cmdMul(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 4) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string res = *it;
@@ -206,6 +237,10 @@ namespace hachaturyanov
 
   void cmdScale(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 4) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string res = *it;
@@ -230,6 +265,10 @@ namespace hachaturyanov
 
   void cmdTranspose(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 3) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string res = *it;
@@ -252,6 +291,10 @@ namespace hachaturyanov
 
   void cmdInsertRow(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() < 4) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
@@ -273,6 +316,10 @@ namespace hachaturyanov
 
   void cmdInsertCol(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() < 4) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
@@ -294,6 +341,10 @@ namespace hachaturyanov
 
   void cmdDeleteRow(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 3) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
@@ -310,6 +361,10 @@ namespace hachaturyanov
 
   void cmdDeleteCol(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 3) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
@@ -326,6 +381,10 @@ namespace hachaturyanov
 
   void cmdAppendRows(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 5) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string source = *it;
@@ -348,6 +407,10 @@ namespace hachaturyanov
 
   void cmdEmbed(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 8) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string result = *it;
@@ -380,6 +443,10 @@ namespace hachaturyanov
 
   void cmdJoinRight(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 5) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string result = *it;
@@ -407,6 +474,10 @@ namespace hachaturyanov
 
   void cmdJoinBottom(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 5) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string result = *it;
@@ -434,6 +505,10 @@ namespace hachaturyanov
 
   void cmdCrop(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 7) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string result = *it;
@@ -464,6 +539,10 @@ namespace hachaturyanov
 
   void cmdReplace(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 5) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string dest = *it;
@@ -486,6 +565,10 @@ namespace hachaturyanov
 
   void cmdFlatten(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 3) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string result = *it;
@@ -508,6 +591,10 @@ namespace hachaturyanov
 
   void cmdRepeat(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    if (tokens.size() != 5) {
+      out << "<INVALID COMMAND>" << '\n';
+      return;
+    }
     auto it = tokens.begin();
     ++it;
     std::string result = *it;
