@@ -29,6 +29,7 @@ namespace hachaturyanov
     using Store = HashTable< Key, int, PairHash, PairEqual >;
 
     Matrix(size_t rows, size_t cols, int fill);
+    Matrix();
 
     size_t rows() const noexcept;
     size_t cols() const noexcept;

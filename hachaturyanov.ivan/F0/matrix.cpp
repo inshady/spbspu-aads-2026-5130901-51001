@@ -40,6 +40,10 @@ namespace hachaturyanov
     }
   }
 
+  Matrix::Matrix():
+   Matrix(1, 1, 0)
+  {}
+
   size_t Matrix::rows() const noexcept
   {
     return rows_;

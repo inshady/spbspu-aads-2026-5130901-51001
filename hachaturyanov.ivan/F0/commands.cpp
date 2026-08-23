@@ -63,13 +63,13 @@ namespace hachaturyanov
     }
   }
 
-  void cmdShow(const List< std::string > &tokens, const MatrixTable &matrices, std::ostream &out)
+  void cmdShow(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
 
-    if (tokens.size() == 2 || matrices.has(name)) {
+    if (tokens.size() == 2 && matrices.has(name)) {
       const Matrix &matrix = matrices.get(name);
       out << "<ROWS: " << matrix.rows() << ", COLS: " << matrix.cols() << ", DATA: [";
       for (size_t i = 0; i < matrix.rows(); i++) {
@@ -110,7 +110,7 @@ namespace hachaturyanov
     }
   }
 
-  void cmdGet(const List< std::string > &tokens, const MatrixTable &matrices, std::ostream &out)
+  void cmdGet(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
     auto it = tokens.begin();
     ++it;
@@ -533,4 +533,45 @@ namespace hachaturyanov
   }
 
 
+  struct CommandEntry {
+    std::string name;
+    void (*handler)(const List< std::string > &, MatrixTable &, std::ostream &);
+  };
+
+  const CommandEntry COMMAND_TABLE[] = {
+    { "new", cmdNew },
+    { "drop", cmdDrop },
+    { "show", cmdShow },
+    { "set", cmdSet },
+    { "get", cmdGet },
+    { "add", cmdAdd },
+    { "sub", cmdSub },
+    { "mul", cmdMul },
+    { "scale", cmdScale },
+    { "transpose", cmdTranspose },
+    { "insert-row", cmdInsertRow },
+    { "insert-col", cmdInsertCol },
+    { "delete-row", cmdDeleteRow },
+    { "delete-col", cmdDeleteCol },
+    { "append-rows", cmdAppendRows },
+    { "embed", cmdEmbed },
+    { "join-right", cmdJoinRight },
+    { "join-bottom", cmdJoinBottom },
+    { "crop", cmdCrop },
+    { "replace", cmdReplace },
+    { "flatten", cmdFlatten },
+    { "repeat", cmdRepeat }
+  };
+
+  const size_t COMMAND_TABLE_SIZE = sizeof(COMMAND_TABLE) / sizeof(COMMAND_TABLE[0]);
+
+  void (*findHandler(const std::string &name))(const List< std::string > &, MatrixTable &, std::ostream &)
+  {
+    for (size_t i = 0; i < COMMAND_TABLE_SIZE; ++i) {
+      if (COMMAND_TABLE[i].name == name) {
+        return COMMAND_TABLE[i].handler;
+      }
+    }
+    return nullptr;
+  }
 }

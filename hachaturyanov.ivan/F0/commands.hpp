@@ -2,8 +2,6 @@
 #define COMMANDS_HPP
 
 #include <iostream>
-#include "../common/hash_table_robin.hpp"
-#include "../common/io_utils.hpp"
 #include "matrix.hpp"
 
 namespace hachaturyanov
@@ -12,11 +10,12 @@ namespace hachaturyanov
 
   List< std::string > tokenize(const std::string &line);
   size_t parseSizeT(const std::string &token);
+
   void cmdNew(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
   void cmdDrop(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
-  void cmdShow(const List< std::string > &tokens, const MatrixTable &matrices, std::ostream &out);
+  void cmdShow(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
   void cmdSet(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
-  void cmdGet(const List< std::string > &tokens, const MatrixTable &matrices, std::ostream &out);
+  void cmdGet(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
   void cmdAdd(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
   void cmdSub(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
   void cmdMul(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
@@ -34,6 +33,8 @@ namespace hachaturyanov
   void cmdReplace(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
   void cmdFlatten(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
   void cmdRepeat(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
+
+  void (*findHandler(const std::string &name))(const List< std::string > &, MatrixTable &, std::ostream &);
 }
 
 #endif
