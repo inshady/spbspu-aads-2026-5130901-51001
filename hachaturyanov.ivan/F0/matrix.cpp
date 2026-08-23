@@ -1,11 +1,37 @@
+#include <limits>
 #include "matrix.hpp"
 
 namespace hachaturyanov
 {
+  size_t Matrix::safeCellCount_(size_t rows, size_t cols) const
+  {
+    if (rows != 0 && cols > std::numeric_limits< size_t >::max() / rows) {
+      throw std::invalid_argument("Matrix dimensions too large");
+    }
+    size_t total = rows * cols;
+    return total > 0 ? total : 1;
+  }
+
+  size_t Matrix::safeAdd_(size_t a, size_t b) const
+  {
+    if (a > std::numeric_limits< size_t >::max() - b) {
+      throw std::invalid_argument("Sum overflow");
+    }
+    return a + b;
+  }
+
+  size_t Matrix::safeMul_(size_t a, size_t b) const
+  {
+    if (a != 0 && b > std::numeric_limits< size_t >::max() / a) {
+      throw std::invalid_argument("Multiplication overflow");
+    }
+    return a * b;
+  }
+
   Matrix::Matrix(size_t rows, size_t cols, int fill):
    rows_(rows),
    cols_(cols),
-   data_(rows * cols > 0 ? rows * cols : 1)
+   data_(safeCellCount_(rows, cols))
   {
     for (size_t i = 0; i < rows_; i++) {
       for (size_t j = 0; j < cols_; j++) {
@@ -146,7 +172,7 @@ namespace hachaturyanov
     }
 
     auto it = values.begin();
-    Store temp((rows_ + 1) * cols_);
+    Store temp(safeMul_(safeAdd_(rows_, 1), cols_));
 
     for (size_t i = 0; i < rows_ + 1; i++) {
       for (size_t j = 0; j < cols_; j++) {
@@ -174,7 +200,7 @@ namespace hachaturyanov
     }
 
     auto it = values.begin();
-    Store temp(rows_ * (cols_ + 1));
+    Store temp(safeMul_(rows_, safeAdd_(cols_, 1)));
 
     for (size_t i = 0; i < rows_; i++) {
       for (size_t j = 0; j < cols_ + 1; j++) {
@@ -201,7 +227,7 @@ namespace hachaturyanov
       throw std::logic_error("Matrix contains only one row");
     }
 
-    Store temp((rows_ - 1) * cols_);
+    Store temp(safeMul_((rows_ - 1), cols_));
 
     for(size_t i = 0; i < rows_ - 1; i++) {
       for (size_t j = 0; j < cols_; j++) {
@@ -225,7 +251,7 @@ namespace hachaturyanov
       throw std::logic_error("Matrix contains only one col");
     }
 
-    Store temp(rows_ * (cols_ - 1));
+    Store temp(safeMul_(rows_, (cols_ - 1)));
 
     for(size_t i = 0; i < rows_; i++) {
       for (size_t j = 0; j < cols_ - 1; j++) {
@@ -249,8 +275,8 @@ namespace hachaturyanov
       throw std::out_of_range("Index out of range");
     }
 
-    size_t n = end - start + 1;
-    Store temp((rows_ + n) * cols_);
+    size_t n = safeAdd_(end - start, 1);
+    Store temp(safeMul_(safeAdd_(rows_, n), cols_));
 
     for (size_t i = 0; i < rows_ + n; i++) {
       for (size_t j = 0; j < cols_; j++) {
@@ -286,7 +312,7 @@ namespace hachaturyanov
   Matrix Matrix::join_right(const Matrix &source, int fill) const
   {
     size_t newRows = std::max(rows_, source.rows_);
-    size_t newCols = cols_ + source.cols_;
+    size_t newCols = safeAdd_(cols_, source.cols_);
     Matrix result(newRows, newCols, fill);
 
     for (size_t i = 0; i < newRows; i++) {
@@ -311,7 +337,7 @@ namespace hachaturyanov
 
    Matrix Matrix::join_bottom(const Matrix &source, int fill) const
   {
-    size_t newRows = rows_ + source.rows_;
+    size_t newRows = safeAdd_(rows_, source.rows_);
     size_t newCols = std::max(cols_, source.cols_);
     Matrix result(newRows, newCols, fill);
 
@@ -373,7 +399,7 @@ namespace hachaturyanov
 
   Matrix Matrix::flatten() const
   {
-    Matrix result(1, rows_ * cols_, 0);
+    Matrix result(1, safeMul_(rows_, cols_), 0);
 
     for (size_t i = 0; i < rows_; i++) {
       for(size_t j = 0; j < cols_; j++) {
@@ -389,7 +415,7 @@ namespace hachaturyanov
       throw std::logic_error("Repeat times should be positive");
     }
 
-    Matrix result(rows_ * tileRows, cols_ * tileCols, 0);
+    Matrix result(safeMul_(rows_, tileRows), safeMul_(cols_, tileCols), 0);
 
     for (size_t ti = 0; ti < tileRows; ti++) {
       for (size_t tj = 0; tj < tileCols; tj++) {

@@ -67,6 +67,10 @@ namespace hachaturyanov
 
     void checkBounds_(size_t i, size_t j) const;
     void checkSameDims_(const Matrix &other) const;
+    size_t safeCellCount_(size_t rows, size_t cols) const;
+
+    size_t safeAdd_(size_t a, size_t b) const;
+    size_t safeMul_(size_t a, size_t b) const;
   };
 }
 
