@@ -10,11 +10,12 @@ namespace hachaturyanov
 {
   using MatrixTable = HashTable< std::string, Matrix, std::hash< std::string >, std::equal_to< std::string > >;
 
-  void cmdNew(MatrixTable &matrices, const std::string &name, size_t rows, size_t cols, int fill, std::ostream &out);
-  void cmdDrop(MatrixTable &matrices, const std::string &name, std::ostream &out);
-  void cmdShow(const MatrixTable &matrices, const std::string &name, std::ostream &out);
-  void cmdSet(MatrixTable &matrices, const std::string &name, size_t row, size_t col, int value, std::ostream &out);
-  void cmdGet(const MatrixTable &matrices, const std::string &name, size_t row, size_t col, std::ostream &out);
+  List< std::string > tokenize(const std::string &line);
+  void cmdNew(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
+  void cmdDrop(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
+  void cmdShow(const List< std::string > &tokens, const MatrixTable &matrices, std::ostream &out);
+  void cmdSet(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out);
+  void cmdGet(const List< std::string > &tokens, const MatrixTable &matrices, std::ostream &out);
   void cmdAdd(MatrixTable &matrices, const std::string &res,
       const std::string &matrix1, const std::string &matrix2, std::ostream &out);
   void cmdSub(MatrixTable &matrices, const std::string &res,

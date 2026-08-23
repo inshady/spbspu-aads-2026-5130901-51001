@@ -2,8 +2,39 @@
 
 namespace hachaturyanov
 {
-  void cmdNew(MatrixTable &matrices, std::string name, size_t rows, size_t cols, int fill, std::ostream &out)
+  List< std::string > tokenize(const std::string &line)
   {
+    List< std::string > tokens;
+    size_t pos = 0;
+
+    while (pos < line.size()) {
+      while (pos < line.size() && std::isspace(line[pos])) {
+        pos++;
+      }
+      if (pos >= line.size()) {
+        break;
+      }
+      size_t start = pos;
+      while (pos < line.size() && !std::isspace(line[pos])) {
+        pos++;
+      }
+      tokens.addEnd(line.substr(start, pos - start));
+    }
+    return tokens;
+  }
+
+  void cmdNew(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
+  {
+    auto it = tokens.begin();
+    ++it;
+    std::string name = *it;
+    ++it;
+    size_t rows = std::stoul(*it);
+    ++it;
+    size_t cols = std::stoul(*it);
+    ++it;
+    int fill = std::stoi(*it);
+
     if (!matrices.has(name) && rows && cols) {
       matrices.add(name, Matrix(rows, cols, fill));
     } else {
@@ -11,8 +42,12 @@ namespace hachaturyanov
     }
   }
 
-  void cmdDrop(MatrixTable &matrices, std::string name, std::ostream &out)
+  void cmdDrop(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string name = *it;
+
     if (matrices.has(name)) {
       matrices.drop(name);
     } else {
@@ -20,9 +55,13 @@ namespace hachaturyanov
     }
   }
 
-  void cmdShow(const MatrixTable &matrices, std::string name, std::ostream &out)
+  void cmdShow(const List< std::string > &tokens, const MatrixTable &matrices, std::ostream &out)
   {
-    if (matrices.has(name)) {
+    auto it = tokens.begin();
+    ++it;
+    std::string name = *it;
+
+    if (tokens.size() == 2 || matrices.has(name)) {
       const Matrix &matrix = matrices.get(name);
       out << "<ROWS: " << matrix.rows() << ", COLS: " << matrix.cols() << ", DATA: [";
       for (size_t i = 0; i < matrix.rows(); i++) {
@@ -44,8 +83,18 @@ namespace hachaturyanov
     }
   }
 
-  void cmdSet(MatrixTable &matrices, std::string name, size_t row, size_t col, int value, std::ostream &out)
+  void cmdSet(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string name = *it;
+    ++it;
+    size_t row = std::stoul(*it);
+    ++it;
+    size_t col = std::stoul(*it);
+    ++it;
+    int value = std::stoi(*it);
+
     try {
       matrices.get(name).set(row, col, value);
     } catch (const std::logic_error &) {
@@ -53,8 +102,17 @@ namespace hachaturyanov
     }
   }
 
-  void cmdGet(const MatrixTable &matrices, std::string name, size_t row, size_t col, std::ostream &out)
+  void cmdGet(const List< std::string > &tokens, const MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string name = *it;
+    ++it;
+    size_t row = std::stoul(*it);
+    ++it;
+    size_t col = std::stoul(*it);
+    ++it;
+
     try {
       int result = matrices.get(name).get(row, col);
       out << result << '\n';
