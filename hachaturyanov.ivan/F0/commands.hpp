@@ -24,8 +24,27 @@ namespace hachaturyanov
   void cmdScale(MatrixTable &matrices, const std::string &res,
       const std::string &name, int scalar, std::ostream &out);
   void cmdTranspose(MatrixTable &matrices, const std::string &res, const std::string &name, std::ostream &out);
-  void cmdInsertRow(MatrixTable &matrices, const std::string &name, 
+  void cmdInsertRow(MatrixTable &matrices, const std::string &name,
       size_t rowIndex, const List< int > &values, std::ostream &out);
+  void cmdInsertCol(MatrixTable &matrices, const std::string &name,
+      size_t colIndex, const List< int > &values, std::ostream &out);
+  void cmdDeleteRow(MatrixTable &matrices, const std::string &name, size_t rowIndex, std::ostream &out);
+  void cmdDeleteCol(MatrixTable &matrices, const std::string &name, size_t colIndex, std::ostream &out);
+  void cmdAppendRows(MatrixTable &matrices, const std::string &source,
+      const std::string &dest, size_t rowStart, size_t rowEnd, std::ostream &out);
+  void cmdEmbed(MatrixTable &matrices, const std::string &result, const std::string &source,
+      size_t rows, size_t cols, size_t rowOffset, size_t colOffset, int fill, std::ostream &out);
+  void cmdJoinRight(MatrixTable &matrices, const std::string &result,
+      const std::string &dest, const std::string &source, int fill, std::ostream &out);
+  void cmdJoinBottom(MatrixTable &matrices, const std::string &result,
+      const std::string &dest, const std::string &source, int fill, std::ostream &out);
+  void cmdCrop(MatrixTable &matrices, const std::string &result, const std::string &source,
+      size_t row, size_t col, size_t rows, size_t cols, std::ostream &out);
+  void cmdReplace(MatrixTable &matrices, const std::string &dest,
+      const std::string &source, size_t row, size_t col, std::ostream &out);
+  void cmdFlatten(MatrixTable &matrices, const std::string &result, const std::string &source, std::ostream &out);
+  void cmdRepeat(MatrixTable &matrices, const std::string &result, const std::string &source,
+      size_t tileRows, size_t tileCols, std::ostream &out);
 }
 
 #endif

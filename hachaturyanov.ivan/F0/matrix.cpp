@@ -130,7 +130,7 @@ namespace hachaturyanov
     }
     return true;
   }
-  
+
   bool Matrix::operator!=(const Matrix &other) const
   {
     return !(*this == other);
@@ -283,11 +283,11 @@ namespace hachaturyanov
     return result;
   }
 
-  void Matrix::join_right(const Matrix &source, int fill)
+  Matrix Matrix::join_right(const Matrix &source, int fill) const
   {
     size_t newRows = std::max(rows_, source.rows_);
     size_t newCols = cols_ + source.cols_;
-    Store temp(newRows * newCols);
+    Matrix result(newRows, newCols, fill);
 
     for (size_t i = 0; i < newRows; i++) {
       for (size_t j = 0; j < newCols; j++) {
@@ -301,19 +301,19 @@ namespace hachaturyanov
             value = source.get(i, j - cols_);
           }
         }
-        temp.add({ i, j }, value);
+        if (value != fill) {
+          result.set(i, j, value);
+        }
       }
     }
-    data_ = std::move(temp);
-    rows_ = std::max(rows_, source.rows_);
-    cols_ += source.cols_; 
+    return result;
   }
 
-  void Matrix::join_bottom(const Matrix &source, int fill)
+   Matrix Matrix::join_bottom(const Matrix &source, int fill) const
   {
     size_t newRows = rows_ + source.rows_;
     size_t newCols = std::max(cols_, source.cols_);
-    Store temp(newRows * newCols);
+    Matrix result(newRows, newCols, fill);
 
     for (size_t i = 0; i < newRows; i++) {
       for (size_t j = 0; j < newCols; j++) {
@@ -327,12 +327,12 @@ namespace hachaturyanov
             value = source.get(i - rows_, j);
           }
         }
-        temp.add({ i, j }, value);
+        if (value != fill) {
+          result.set(i, j, value);
+        }
       }
     }
-    data_ = std::move(temp);
-    rows_ += source.rows_;
-    cols_ = std::max(cols_, source.cols_);
+    return result;
   }
 
   Matrix Matrix::crop(size_t row, size_t col, size_t newRows, size_t newCols) const
@@ -343,7 +343,7 @@ namespace hachaturyanov
     if (newCols > cols_ || col > cols_ - newCols) {
       throw std::logic_error("Crop area not in bounds");
     }
- 
+
     Matrix result(newRows, newCols, 0);
     for (size_t i = 0; i < newRows; i++) {
       for (size_t j = 0; j < newCols; j++) {

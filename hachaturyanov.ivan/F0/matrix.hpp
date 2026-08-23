@@ -54,8 +54,8 @@ namespace hachaturyanov
     void append_rows(const Matrix &source, size_t start, size_t end);
     Matrix embed(size_t newRows, size_t newCols, size_t rowOffset, size_t colOffset, int fill) const;
 
-    void join_right(const Matrix &source, int fill);
-    void join_bottom(const Matrix &source, int fill);
+    Matrix join_right(const Matrix &source, int fill) const;
+    Matrix join_bottom(const Matrix &source, int fill) const;
     Matrix crop(size_t row, size_t col, size_t newRows, size_t newCols) const;
     void replace(const Matrix &source, size_t row, size_t col);
     Matrix flatten() const;

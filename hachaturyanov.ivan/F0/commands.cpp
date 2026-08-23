@@ -150,7 +150,7 @@ namespace hachaturyanov
     }
   }
 
-  void cmdInsertRow(MatrixTable &matrices, const std::string &name, 
+  void cmdInsertRow(MatrixTable &matrices, const std::string &name,
       size_t rowIndex, const List< int > &values, std::ostream &out)
   {
     try {
@@ -160,4 +160,166 @@ namespace hachaturyanov
       out << "<INVALID COMMAND>" << '\n';
     }
   }
+
+  void cmdInsertCol(MatrixTable &matrices, const std::string &name,
+      size_t colIndex, const List< int > &values, std::ostream &out)
+  {
+    try {
+      Matrix &matrix = matrices.get(name);
+      matrix.insert_col(colIndex, values);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdDeleteRow(MatrixTable &matrices, const std::string &name, size_t rowIndex, std::ostream &out)
+  {
+    try {
+      Matrix &matrix = matrices.get(name);
+      matrix.delete_row(rowIndex);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdDeleteCol(MatrixTable &matrices, const std::string &name, size_t colIndex, std::ostream &out)
+  {
+    try {
+      Matrix &matrix = matrices.get(name);
+      matrix.delete_col(colIndex);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdAppendRows(MatrixTable &matrices, const std::string &source,
+      const std::string &dest, size_t rowStart, size_t rowEnd, std::ostream &out)
+  {
+    try {
+      const Matrix &sourceMatrix = matrices.get(source);
+      Matrix &destMatrix = matrices.get(dest);
+
+      destMatrix.append_rows(sourceMatrix, rowStart, rowEnd);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdEmbed(MatrixTable &matrices, const std::string &result, const std::string &source,
+      size_t rows, size_t cols, size_t rowOffset, size_t colOffset, int fill, std::ostream &out)
+  {
+    try {
+      if (matrices.has(result)) {
+        throw std::logic_error("Result matrix already exists");
+      }
+
+      const Matrix &sourceMatrix = matrices.get(source);
+      Matrix resultMatrix = sourceMatrix.embed(rows, cols, rowOffset, colOffset, fill);
+
+      matrices.add(result, resultMatrix);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdJoinRight(MatrixTable &matrices, const std::string &result,
+      const std::string &dest, const std::string &source, int fill, std::ostream &out)
+  {
+    try {
+      if (matrices.has(result)) {
+        throw std::logic_error("Result matrix already exists");
+      }
+
+      const Matrix &destMatrix = matrices.get(dest);
+      const Matrix &sourceMatrix = matrices.get(source);
+      Matrix resultMatrix = destMatrix.join_right(sourceMatrix, fill);
+
+      matrices.add(result, resultMatrix);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdJoinBottom(MatrixTable &matrices, const std::string &result,
+      const std::string &dest, const std::string &source, int fill, std::ostream &out)
+  {
+    try {
+      if (matrices.has(result)) {
+        throw std::logic_error("Result matrix already exists");
+      }
+
+      const Matrix &destMatrix = matrices.get(dest);
+      const Matrix &sourceMatrix = matrices.get(source);
+      Matrix resultMatrix = destMatrix.join_bottom(sourceMatrix, fill);
+
+      matrices.add(result, resultMatrix);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdCrop(MatrixTable &matrices, const std::string &result, const std::string &source,
+      size_t row, size_t col, size_t rows, size_t cols, std::ostream &out)
+  {
+    try {
+      if (matrices.has(result)) {
+        throw std::logic_error("Result matrix already exists");
+      }
+
+      const Matrix &sourceMatrix = matrices.get(source);
+      Matrix resultMatrix = sourceMatrix.crop(row, col, rows, cols);
+
+      matrices.add(result, resultMatrix);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdReplace(MatrixTable &matrices, const std::string &dest,
+      const std::string &source, size_t row, size_t col, std::ostream &out)
+  {
+    try {
+      Matrix &destMatrix = matrices.get(dest);
+      const Matrix &sourceMatrix = matrices.get(source);
+
+      destMatrix.replace(sourceMatrix, row, col);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdFlatten(MatrixTable &matrices, const std::string &result, const std::string &source, std::ostream &out)
+  {
+    try {
+      if (matrices.has(result)) {
+        throw std::logic_error("Result matrix already exists");
+      }
+
+      const Matrix &sourceMatrix = matrices.get(source);
+      Matrix resultMatrix = sourceMatrix.flatten();
+
+      matrices.add(result, resultMatrix);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+  void cmdRepeat(MatrixTable &matrices, const std::string &result, const std::string &source,
+      size_t tileRows, size_t tileCols, std::ostream &out)
+  {
+    try {
+      if (matrices.has(result)) {
+        throw std::logic_error("Result matrix already exists");
+      }
+
+      const Matrix &sourceMatrix = matrices.get(source);
+      Matrix resultMatrix = sourceMatrix.repeat(tileRows, tileCols);
+
+      matrices.add(result, resultMatrix);
+    } catch (const std::logic_error &) {
+      out << "<INVALID COMMAND>" << '\n';
+    }
+  }
+
+
 }
