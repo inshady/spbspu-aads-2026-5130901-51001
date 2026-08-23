@@ -23,15 +23,23 @@ namespace hachaturyanov
     return tokens;
   }
 
+  size_t parseSizeT(const std::string &token)
+  {
+    if (token.empty() || token[0] == '-') {
+      throw std::invalid_argument("Invalid size_t value");
+    }
+    return std::stoul(token);
+  }
+
   void cmdNew(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
     auto it = tokens.begin();
     ++it;
     std::string name = *it;
     ++it;
-    size_t rows = std::stoul(*it);
+    size_t rows = parseSizeT(*it);
     ++it;
-    size_t cols = std::stoul(*it);
+    size_t cols = parseSizeT(*it);
     ++it;
     int fill = std::stoi(*it);
 
@@ -89,9 +97,9 @@ namespace hachaturyanov
     ++it;
     std::string name = *it;
     ++it;
-    size_t row = std::stoul(*it);
+    size_t row = parseSizeT(*it);
     ++it;
-    size_t col = std::stoul(*it);
+    size_t col = parseSizeT(*it);
     ++it;
     int value = std::stoi(*it);
 
@@ -108,9 +116,9 @@ namespace hachaturyanov
     ++it;
     std::string name = *it;
     ++it;
-    size_t row = std::stoul(*it);
+    size_t row = parseSizeT(*it);
     ++it;
-    size_t col = std::stoul(*it);
+    size_t col = parseSizeT(*it);
     ++it;
 
     try {
@@ -121,9 +129,16 @@ namespace hachaturyanov
     }
   }
 
-  void cmdAdd(MatrixTable &matrices, const std::string &res,
-      const std::string &matrix1, const std::string &matrix2, std::ostream &out)
+  void cmdAdd(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string res = *it;
+    ++it;
+    std::string matrix1 = *it;
+    ++it;
+    std::string matrix2 = *it;
+
     try {
       if (matrices.has(res)) {
         throw std::logic_error("Result matrix already exists");
@@ -139,9 +154,16 @@ namespace hachaturyanov
     }
   }
 
-  void cmdSub(MatrixTable &matrices, const std::string &res,
-      const std::string &matrix1, const std::string &matrix2, std::ostream &out)
+  void cmdSub(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string res = *it;
+    ++it;
+    std::string matrix1 = *it;
+    ++it;
+    std::string matrix2 = *it;
+
     try {
       if (matrices.has(res)) {
         throw std::logic_error("Result matrix already exists");
@@ -157,9 +179,16 @@ namespace hachaturyanov
     }
   }
 
-  void cmdMul(MatrixTable &matrices, const std::string &res,
-      const std::string &matrix1, const std::string &matrix2, std::ostream &out)
+  void cmdMul(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string res = *it;
+    ++it;
+    std::string matrix1 = *it;
+    ++it;
+    std::string matrix2 = *it;
+
     try {
       if (matrices.has(res)) {
         throw std::logic_error("Result matrix already exists");
@@ -175,9 +204,16 @@ namespace hachaturyanov
     }
   }
 
-  void cmdScale(MatrixTable &matrices, const std::string &res,
-      const std::string &name, int scalar, std::ostream &out)
+  void cmdScale(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string res = *it;
+    ++it;
+    std::string name = *it;
+    ++it;
+    int scalar = std::stoi(*it);
+
     try {
       if (matrices.has(res)) {
         throw std::logic_error("Result matrix already exists");
@@ -192,8 +228,14 @@ namespace hachaturyanov
     }
   }
 
-  void cmdTranspose(MatrixTable &matrices, std::string res, std::string name, std::ostream &out)
+  void cmdTranspose(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string res = *it;
+    ++it;
+    std::string name = *it;
+
     try {
       if (matrices.has(res)) {
         throw std::logic_error("Result matrix already exists");
@@ -208,9 +250,19 @@ namespace hachaturyanov
     }
   }
 
-  void cmdInsertRow(MatrixTable &matrices, const std::string &name,
-      size_t rowIndex, const List< int > &values, std::ostream &out)
+  void cmdInsertRow(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string name = *it;
+    ++it;
+    size_t rowIndex = parseSizeT(*it);
+    ++it;
+    List< int > values;
+    for (; it != tokens.end(); ++it) {
+      values.addEnd(std::stoi(*it));
+    }
+
     try {
       Matrix &matrix = matrices.get(name);
       matrix.insert_row(rowIndex, values);
@@ -219,9 +271,19 @@ namespace hachaturyanov
     }
   }
 
-  void cmdInsertCol(MatrixTable &matrices, const std::string &name,
-      size_t colIndex, const List< int > &values, std::ostream &out)
+  void cmdInsertCol(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string name = *it;
+    ++it;
+    size_t colIndex = parseSizeT(*it);
+    ++it;
+    List< int > values;
+    for (; it != tokens.end(); ++it) {
+      values.addEnd(std::stoi(*it));
+    }
+
     try {
       Matrix &matrix = matrices.get(name);
       matrix.insert_col(colIndex, values);
@@ -230,8 +292,14 @@ namespace hachaturyanov
     }
   }
 
-  void cmdDeleteRow(MatrixTable &matrices, const std::string &name, size_t rowIndex, std::ostream &out)
+  void cmdDeleteRow(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string name = *it;
+    ++it;
+    size_t rowIndex = parseSizeT(*it);
+
     try {
       Matrix &matrix = matrices.get(name);
       matrix.delete_row(rowIndex);
@@ -240,8 +308,14 @@ namespace hachaturyanov
     }
   }
 
-  void cmdDeleteCol(MatrixTable &matrices, const std::string &name, size_t colIndex, std::ostream &out)
+  void cmdDeleteCol(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string name = *it;
+    ++it;
+    size_t colIndex = parseSizeT(*it);
+
     try {
       Matrix &matrix = matrices.get(name);
       matrix.delete_col(colIndex);
@@ -250,9 +324,18 @@ namespace hachaturyanov
     }
   }
 
-  void cmdAppendRows(MatrixTable &matrices, const std::string &source,
-      const std::string &dest, size_t rowStart, size_t rowEnd, std::ostream &out)
+  void cmdAppendRows(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string source = *it;
+    ++it;
+    std::string dest = *it;
+    ++it;
+    size_t rowStart = parseSizeT(*it);
+    ++it;
+    size_t rowEnd = parseSizeT(*it);
+
     try {
       const Matrix &sourceMatrix = matrices.get(source);
       Matrix &destMatrix = matrices.get(dest);
@@ -263,9 +346,24 @@ namespace hachaturyanov
     }
   }
 
-  void cmdEmbed(MatrixTable &matrices, const std::string &result, const std::string &source,
-      size_t rows, size_t cols, size_t rowOffset, size_t colOffset, int fill, std::ostream &out)
+  void cmdEmbed(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string result = *it;
+    ++it;
+    std::string source = *it;
+    ++it;
+    size_t rows = parseSizeT(*it);
+    ++it;
+    size_t cols = parseSizeT(*it);
+    ++it;
+    size_t rowOffset = parseSizeT(*it);
+    ++it;
+    size_t colOffset = parseSizeT(*it);
+    ++it;
+    int fill = std::stoi(*it);
+
     try {
       if (matrices.has(result)) {
         throw std::logic_error("Result matrix already exists");
@@ -280,9 +378,18 @@ namespace hachaturyanov
     }
   }
 
-  void cmdJoinRight(MatrixTable &matrices, const std::string &result,
-      const std::string &dest, const std::string &source, int fill, std::ostream &out)
+  void cmdJoinRight(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string result = *it;
+    ++it;
+    std::string dest = *it;
+    ++it;
+    std::string source = *it;
+    ++it;
+    int fill = std::stoi(*it);
+
     try {
       if (matrices.has(result)) {
         throw std::logic_error("Result matrix already exists");
@@ -298,9 +405,18 @@ namespace hachaturyanov
     }
   }
 
-  void cmdJoinBottom(MatrixTable &matrices, const std::string &result,
-      const std::string &dest, const std::string &source, int fill, std::ostream &out)
+  void cmdJoinBottom(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string result = *it;
+    ++it;
+    std::string dest = *it;
+    ++it;
+    std::string source = *it;
+    ++it;
+    int fill = std::stoi(*it);
+
     try {
       if (matrices.has(result)) {
         throw std::logic_error("Result matrix already exists");
@@ -316,9 +432,22 @@ namespace hachaturyanov
     }
   }
 
-  void cmdCrop(MatrixTable &matrices, const std::string &result, const std::string &source,
-      size_t row, size_t col, size_t rows, size_t cols, std::ostream &out)
+  void cmdCrop(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string result = *it;
+    ++it;
+    std::string source = *it;
+    ++it;
+    size_t row = parseSizeT(*it);
+    ++it;
+    size_t col = parseSizeT(*it);
+    ++it;
+    size_t rows = parseSizeT(*it);
+    ++it;
+    size_t cols = parseSizeT(*it);
+
     try {
       if (matrices.has(result)) {
         throw std::logic_error("Result matrix already exists");
@@ -333,9 +462,18 @@ namespace hachaturyanov
     }
   }
 
-  void cmdReplace(MatrixTable &matrices, const std::string &dest,
-      const std::string &source, size_t row, size_t col, std::ostream &out)
+  void cmdReplace(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string dest = *it;
+    ++it;
+    std::string source = *it;
+    ++it;
+    size_t row = parseSizeT(*it);
+    ++it;
+    size_t col = parseSizeT(*it);
+
     try {
       Matrix &destMatrix = matrices.get(dest);
       const Matrix &sourceMatrix = matrices.get(source);
@@ -346,8 +484,14 @@ namespace hachaturyanov
     }
   }
 
-  void cmdFlatten(MatrixTable &matrices, const std::string &result, const std::string &source, std::ostream &out)
+  void cmdFlatten(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string result = *it;
+    ++it;
+    std::string source = *it;
+
     try {
       if (matrices.has(result)) {
         throw std::logic_error("Result matrix already exists");
@@ -362,9 +506,18 @@ namespace hachaturyanov
     }
   }
 
-  void cmdRepeat(MatrixTable &matrices, const std::string &result, const std::string &source,
-      size_t tileRows, size_t tileCols, std::ostream &out)
+  void cmdRepeat(const List< std::string > &tokens, MatrixTable &matrices, std::ostream &out)
   {
+    auto it = tokens.begin();
+    ++it;
+    std::string result = *it;
+    ++it;
+    std::string source = *it;
+    ++it;
+    size_t tileRows = parseSizeT(*it);
+    ++it;
+    size_t tileCols = parseSizeT(*it);
+
     try {
       if (matrices.has(result)) {
         throw std::logic_error("Result matrix already exists");
