@@ -387,17 +387,17 @@ namespace hachaturyanov
     }
     auto it = tokens.begin();
     ++it;
-    std::string source = *it;
-    ++it;
     std::string dest = *it;
+    ++it;
+    std::string source = *it;
     ++it;
     size_t rowStart = parseSizeT(*it);
     ++it;
     size_t rowEnd = parseSizeT(*it);
 
     try {
-      const Matrix &sourceMatrix = matrices.get(source);
       Matrix &destMatrix = matrices.get(dest);
+      const Matrix &sourceMatrix = matrices.get(source);
 
       destMatrix.append_rows(sourceMatrix, rowStart, rowEnd);
     } catch (const std::logic_error &) {
