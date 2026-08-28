@@ -440,7 +440,7 @@ namespace hachaturyanov
     if (static_cast< double >(size_ + 1) / capacity_ > MAX_LOAD_FACTOR) {
       rehash(capacity_ * 2);
     }
-    
+
     size_t idx = hash_(key) % capacity_;
     Key newKey = key;
     Value newValue = value;
@@ -490,7 +490,7 @@ namespace hachaturyanov
   {
     size_t idx = hash_(key) % capacity_;
     int psl = 0;
-    
+
     bool found = false;
     for (size_t i = 0; i < capacity_; i++) {
       Slot< Key, Value > &cur = data_[idx];
@@ -536,7 +536,7 @@ namespace hachaturyanov
   {
     size_t new_capacity = nextPrime(slots);
     Slot< Key, Value >* new_data = new Slot< Key, Value >[new_capacity];
-    
+
     Slot< Key, Value >* old_data = data_;
     size_t old_capacity = capacity_;
 
