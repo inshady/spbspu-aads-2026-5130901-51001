@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(test_find_missing_key)
 
   BOOST_TEST(!h.has(21));
   BOOST_TEST(!h.has(100));
-  BOOST_CHECK_THROW(h.get(21), std::runtime_error);
+  BOOST_CHECK_THROW(h.get(21), std::out_of_range);
 }
 
 BOOST_AUTO_TEST_CASE(test_deleting_middle_of_chain)
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(test_deleting_tail_of_chain)
   BOOST_TEST(h.get(7) == "b");
 }
 
-BOOST_AUTO_TEST_CASE(test_readd_key)
+BOOST_AUTO_TEST_CASE(test_read_key)
 {
   Table h(7);
   h.add(0, "a");
@@ -370,7 +370,7 @@ BOOST_AUTO_TEST_CASE(test_random_operations_match_model)
         h.drop(key);
         ref.erase(key);
       } else {
-        BOOST_CHECK_THROW(h.drop(key), std::logic_error);
+        BOOST_CHECK_THROW(h.drop(key), std::out_of_range);
       }
     }
   }
