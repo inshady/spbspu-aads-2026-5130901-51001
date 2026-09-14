@@ -17,7 +17,11 @@ int main()
       std::cout << "<INVALID COMMAND>" << '\n';
       continue;
     }
-    handler(tokens, matrices, std::cout);
+    try {
+      handler(tokens, matrices, std::cout);
+    } catch (const std::bad_alloc &) {
+      std::cout << "<BAD ALLOCATION>" << "\n";
+    }
   }
 
   return 0;
